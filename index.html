@@ -318,8 +318,14 @@
   .keyboard{
     flex:1 1 0; min-height:0; padding:0 10px calc(12px + env(safe-area-inset-bottom));
     background:
-      linear-gradient(180deg, rgba(12,16,28,.30), rgba(8,10,18,.66)),
-      url(assets/sprites/wood_table.png) center/cover no-repeat;
+      linear-gradient(180deg, rgba(12,16,28,.28), rgba(8,10,18,.58)),
+      repeating-linear-gradient(90deg, rgba(0,0,0,.20) 0, rgba(0,0,0,.20) 2px, transparent 2px, transparent 18px),
+      repeating-linear-gradient(0deg,
+        #9c6b3c 0, #9c6b3c 26px,
+        #8c5d33 26px, #8c5d33 52px,
+        #a37143 52px, #a37143 78px,
+        #7e532d 78px, #7e532d 104px);
+    background-size:100% 100%, 100% 100%, 100% 104px;
     border-top:4px solid #6b4423;
     display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;
   }
@@ -353,13 +359,19 @@
   .ksub{ display:flex; justify-content:center; width:100%; }
   .key.submit{
     width:96px; height:96px; font-size:24px; letter-spacing:1px;
-    background:transparent url(assets/sprites/btn_round_red_big.png) center/100% 100% no-repeat;
+    background:radial-gradient(circle at 50% 35%, #ff6e6e 0%, #e04343 55%, #b32b2b 100%);
+    border:3px solid #ffe9b8;
+    box-shadow:0 0 0 4px rgba(224,67,67,.35), 0 5px 0 rgba(0,0,0,.30);
     animation:ansGlow 1.7s ease-in-out infinite;
   }
-  .key.submit:active{ background-image:url(assets/sprites/btn_round_red_big_press.png); transform:scale(.95); animation:none; box-shadow:0 0 12px 3px rgba(255,120,120,.5); }
+  .key.submit:active{
+    background:radial-gradient(circle at 50% 35%, #e04343 0%, #b32b2b 70%, #8c1f1f 100%);
+    transform:scale(.95); animation:none;
+    box-shadow:0 0 12px 3px rgba(255,120,120,.5);
+  }
   @keyframes ansGlow{
-    0%,100%{ box-shadow:0 5px 0 rgba(0,0,0,.30), 0 0 0 0 rgba(255,110,110,0); }
-    50%    { box-shadow:0 5px 0 rgba(0,0,0,.30), 0 0 22px 5px rgba(255,110,110,.60); }
+    0%,100%{ box-shadow:0 0 0 4px rgba(224,67,67,.35), 0 5px 0 rgba(0,0,0,.30); }
+    50%    { box-shadow:0 0 22px 6px rgba(255,110,110,.65), 0 5px 0 rgba(0,0,0,.30); }
   }
 
   /* 解答面板（答錯時顯示步驟） */
