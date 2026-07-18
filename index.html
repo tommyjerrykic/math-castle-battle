@@ -42,7 +42,7 @@
   .menu{
     position:absolute; inset:0; display:flex; flex-direction:column;
     align-items:center; justify-content:center; gap:22px; z-index:6;
-    background:radial-gradient(ellipse at 50% 38%,rgba(10,14,26,.22),rgba(6,8,16,.74));
+    background:radial-gradient(ellipse at 50% 52%,rgba(6,8,16,0) 34%,rgba(6,8,16,.46) 100%);
     text-align:center; padding:20px;
   }
   .menu-title{
@@ -652,6 +652,10 @@ const LOAD = [
   ['cloud05','assets/sprites/cloud05.png',1],
   ['cloud06','assets/sprites/cloud06.png',1],
   ['cloud07','assets/sprites/cloud07.png',1],
+  ['bg_sun','assets/sprites/bg_sun.png',1],
+  ['bg_hills_far','assets/sprites/bg_hills_far.png',1],
+  ['bg_hills_near','assets/sprites/bg_hills_near.png',1],
+  ['bg_grass','assets/sprites/bg_grass.png',1],
 ];
 const FRAMES = {};
 
@@ -935,6 +939,79 @@ function hill(x0,base,yw,h){
   ctx.quadraticCurveTo(x0+yw/2,base-h,x0+yw,base);
   ctx.closePath(); ctx.fill();
 }
+/* 主選單全屏佈景：自創素材 + 既有素材，分層堆疊出一幅「城堡前線」風景 */
+function drawMenuScene(){
+  const gy = 350;                                   // 選單地平線（比戰場低，天空更多，留出空間給標題）
+  // 1) 天空漸層（全屏上段）
+  const sky=ctx.createLinearGradient(0,0,0,gy);
+  sky.addColorStop(0,'#1b2350'); sky.addColorStop(0.5,'#3a568f'); sky.addColorStop(0.82,'#cf8e5e'); sky.addColorStop(1,'#f0b873');
+  ctx.fillStyle=sky; ctx.fillRect(0,0,W,gy);
+  // 2) 太陽光暈（canvas 徑向漸層）
+  const sx=W*0.72, sy=92;
+  const sg=ctx.createRadialGradient(sx,sy,8,sx,sy,235);
+  sg.addColorStop(0,'rgba(255,229,172,.60)'); sg.addColorStop(1,'rgba(255,229,172,0)');
+  ctx.fillStyle=sg; ctx.fillRect(0,0,W,gy);
+  // 3) 太陽 sprite（自創）
+  if(imgReady('bg_sun')) ctx.drawImage(IM['bg_sun'], sx-95, -3, 190, 190);
+  // 4) 雲朵（沿用戰場飄動雲）
+  drawClouds();
+  // 5) 遠山（自創剪影）
+  if(imgReady('bg_hills_far')){ const img=IM['bg_hills_far']; ctx.drawImage(img,(W-img.width)/2, gy-205, img.width, 260); }
+  // 6) 草地（全屏下段）
+  const gg=ctx.createLinearGradient(0,gy,0,H);
+  gg.addColorStop(0,'#3f7d3a'); gg.addColorStop(1,'#244a22');
+  ctx.fillStyle=gg; ctx.fillRect(0,gy,W,H-gy);
+  ctx.fillStyle='#2c5a28'; ctx.fillRect(0,gy,W,4);            // 地平線接地
+  // 7) 近山（自創緩丘，蓋在草地上方做出層次）
+  if(imgReady('bg_hills_near')){ const img=IM['bg_hills_near']; ctx.drawImage(img,(W-img.width)/2, gy-130, img.width, 175); }
+  // 8) 遠景兩座城堡（藍左紅右，淡淡作為背景）
+  drawMenuCastles(gy);
+  // 9) 樹木 / 灌木框景（避開中央標題區）
+  drawMenuDecor(gy);
+  // 10) 前景草叢（自創，最上層框住底部）
+  if(imgReady('bg_grass')){ const img=IM['bg_grass']; ctx.drawImage(img,(W-img.width)/2, H-img.height, img.width, img.height); }
+}
+function drawMenuCastles(gy){
+  const ch=120;                                      // 遠景城堡較小
+  for(const side of ['p','e']){
+    const key=side==='p'?'castle_p':'castle_e';
+    if(!imgReady(key)) continue;
+    const img=IM[key]; const cw=ch*(img.width/img.height);
+    const x = side==='p' ? 150 : W-150;
+    ctx.save(); ctx.globalAlpha=0.94;
+    ctx.drawImage(img, x-cw/2, gy-ch, cw, ch);
+    ctx.restore();
+  }
+}
+function drawMenuDecor(gy){
+  const trees=[
+    {k:'tree05',x:46,    h:152, a:1},
+    {k:'tree06',x:W-52,  h:162, a:1},
+    {k:'tree01',x:122,   h:120, a:0.92},
+    {k:'tree03',x:W-132, h:128, a:0.92},
+    {k:'tree07',x:258,   h:96,  a:0.8},
+    {k:'tree04',x:W-250, h:100, a:0.8},
+  ];
+  for(const it of trees){
+    if(!imgReady(it.k)) continue;
+    const img=IM[it.k]; const sw=img.width/FRAMES[it.k];
+    const dw=it.h*(sw/img.height);
+    ctx.save(); ctx.globalAlpha=it.a;
+    ctx.drawImage(img,0,0,sw,img.height, it.x-dw/2, gy-it.h, dw, it.h);
+    ctx.restore();
+  }
+  const items=[
+    {k:'bush',x:W*0.16,h:50},{k:'rock',x:W*0.225,h:38},
+    {k:'bush',x:W*0.80,h:52},{k:'rock',x:W*0.865,h:40},
+    {k:'stump02',x:W*0.10,h:34},{k:'stump03',x:W*0.90,h:38},
+  ];
+  for(const it of items){
+    if(!imgReady(it.k)) continue;
+    const img=IM[it.k]; const sw=img.width/FRAMES[it.k];
+    const dw=it.h*(sw/img.height);
+    ctx.drawImage(img,0,0,sw,img.height, it.x-dw/2, gy-it.h, dw, it.h);
+  }
+}
 /* 雲朵佈局：使用 Tiny Swords 的雲裝飾素材，緩慢左右飄動 */
 const CLOUDS=[
   {k:'cloud00',x:  80, y: 20, w:210, sp: 8},
@@ -1028,7 +1105,7 @@ function drawProjectiles(){
 function loop(t){
   if(!lastT) lastT=t;
   const dt=Math.min(0.05,(t-lastT)/1000); lastT=t; clock+=dt;
-  if(SCREEN==='menu'){ menuTick(dt); draw(); }
+  if(SCREEN==='menu'){ menuTick(dt); drawMenuScene(); }
   else if(SCREEN==='playing'){ if(!solOpen) step(dt,false); updateParticles(dt); draw(); }
   else { updateParticles(dt); draw(); } // over：粒子繼續淡出
   requestAnimationFrame(loop);
