@@ -314,64 +314,79 @@
   .quiz .buy:disabled{filter:grayscale(.75) brightness(.65); cursor:not-allowed; opacity:.7;}
   .stats{display:flex; gap:18px; font-size:14px; color:#9aa6c4; padding:10px 16px; flex-wrap:wrap; justify-content:center; background:#0c1020;}
   .stats b{color:var(--text);}
-  /* 螢幕數字鍵盤（木桌控制台風格） */
+  /* 螢幕數字鍵盤（純 CSS 美化，不使用任何素材） */
   .keyboard{
-    flex:1 1 0; min-height:0; padding:0 10px calc(12px + env(safe-area-inset-bottom));
+    flex:1 1 0; min-height:0; padding:14px 10px calc(14px + env(safe-area-inset-bottom));
     background:
-      linear-gradient(180deg, rgba(12,16,28,.28), rgba(8,10,18,.58)),
-      repeating-linear-gradient(90deg, rgba(0,0,0,.20) 0, rgba(0,0,0,.20) 2px, transparent 2px, transparent 18px),
-      repeating-linear-gradient(0deg,
-        #9c6b3c 0, #9c6b3c 26px,
-        #8c5d33 26px, #8c5d33 52px,
-        #a37143 52px, #a37143 78px,
-        #7e532d 78px, #7e532d 104px);
-    background-size:100% 100%, 100% 100%, 100% 104px;
-    border-top:4px solid #6b4423;
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;
+      radial-gradient(ellipse at 50% -10%, rgba(120,160,255,.20), transparent 55%),
+      linear-gradient(180deg, #1f2742 0%, #151b30 58%, #0d1120 100%);
+    border-top:4px solid rgba(255,225,150,.35);
+    box-shadow:inset 0 10px 24px rgba(0,0,0,.55);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:13px;
   }
   .kb-header{
-    width:100%; max-width:300px; height:38px; margin-top:6px;
-    background:url(assets/sprites/title_wood.png) center/100% 100% no-repeat;
+    width:100%; max-width:300px; height:42px; margin-top:2px; position:relative;
     display:flex; align-items:center; justify-content:center;
-    box-shadow:0 3px 7px rgba(0,0,0,.45); border-radius:4px;
+    border-radius:10px;
+    background:linear-gradient(180deg, #ffeaa8 0%, #f3c14b 48%, #d99a2c 100%);
+    box-shadow:0 3px 0 #9c6b1e, 0 6px 12px rgba(0,0,0,.45), inset 0 1px 2px rgba(255,255,255,.75);
   }
-  .kb-title{ color:#ffe9b8; font-size:19px; font-weight:900; letter-spacing:4px; text-shadow:0 2px 2px rgba(0,0,0,.55); }
-  .kpad{ display:grid; grid-template-columns:repeat(3,78px); gap:13px; justify-content:center; }
+  .kb-title{ color:#5a3a08; font-size:20px; font-weight:900; letter-spacing:6px; text-shadow:0 1px 1px rgba(255,255,255,.5); }
+  .kpad{ display:grid; grid-template-columns:repeat(3,80px); gap:14px; justify-content:center; }
   .key{
-    width:78px; height:78px; border:none; border-radius:50%;
-    background:transparent url(assets/sprites/btn_round_blue.png) center/100% 100% no-repeat;
-    color:#fff; font-size:30px; font-weight:900; cursor:pointer;
+    width:80px; height:80px; border:none; border-radius:50%;
+    background:radial-gradient(circle at 50% 28%, #8ec0ff 0%, #3f7fe0 52%, #2456b8 100%);
+    color:#fff; font-size:32px; font-weight:900; cursor:pointer;
     display:flex; align-items:center; justify-content:center;
-    text-shadow:0 1px 2px rgba(0,0,0,.6);
-    box-shadow:0 5px 0 rgba(0,0,0,.30), inset 0 3px 7px rgba(255,255,255,.22), inset 0 -5px 9px rgba(0,0,0,.38);
+    text-shadow:0 1px 2px rgba(0,0,0,.5);
+    box-shadow:0 6px 0 #1a3f8a, 0 9px 15px rgba(0,0,0,.45),
+               inset 0 3px 7px rgba(255,255,255,.5), inset 0 -7px 11px rgba(0,0,0,.32);
     -webkit-tap-highlight-color:transparent; touch-action:manipulation; user-select:none;
-    transition:transform .06s ease, box-shadow .06s ease;
+    transition:transform .07s ease, box-shadow .07s ease;
   }
-  .key:active{ background-image:url(assets/sprites/btn_round_blue_press.png); transform:translateY(3px); box-shadow:0 2px 0 rgba(0,0,0,.30), inset 0 2px 7px rgba(0,0,0,.42); }
+  .key:active{
+    background:radial-gradient(circle at 50% 28%, #6aa6f5 0%, #2f63b8 60%, #1c4494 100%);
+    transform:translateY(4px);
+    box-shadow:0 2px 0 #14306a, 0 3px 8px rgba(0,0,0,.45), inset 0 2px 7px rgba(0,0,0,.42);
+  }
   .key.op{
-    background:radial-gradient(circle at 50% 32%, #ffe9a6 0%, #f6bd4a 55%, #cc8a22 100%);
+    background:radial-gradient(circle at 50% 28%, #ffe9a6 0%, #f3c14b 52%, #cc8a22 100%);
     color:#5a3500; text-shadow:0 1px 1px rgba(255,255,255,.5);
-    box-shadow:0 5px 0 rgba(120,70,10,.45), inset 0 3px 7px rgba(255,255,255,.45), inset 0 -5px 9px rgba(120,70,10,.45);
+    box-shadow:0 6px 0 #a06a15, 0 9px 15px rgba(0,0,0,.45),
+               inset 0 3px 7px rgba(255,255,255,.55), inset 0 -7px 11px rgba(140,90,15,.45);
   }
-  .key.op:active{ background:radial-gradient(circle at 50% 32%, #f6bd4a 0%, #cc8a22 70%, #a86f15 100%); transform:translateY(3px); box-shadow:0 2px 0 rgba(120,70,10,.45), inset 0 2px 7px rgba(120,70,10,.5); }
-  .key.red{ background-image:url(assets/sprites/btn_round_red.png); }
-  .key.red:active{ background-image:url(assets/sprites/btn_round_red_press.png); }
+  .key.op:active{
+    background:radial-gradient(circle at 50% 28%, #f3c14b 0%, #cc8a22 65%, #a86f15 100%);
+    transform:translateY(4px);
+    box-shadow:0 2px 0 #7d5210, 0 3px 8px rgba(0,0,0,.45), inset 0 2px 7px rgba(140,90,15,.5);
+  }
+  .key.red{
+    background:radial-gradient(circle at 50% 28%, #ff8a8a 0%, #e04343 52%, #b32b2b 100%);
+    box-shadow:0 6px 0 #8c1f1f, 0 9px 15px rgba(0,0,0,.45),
+               inset 0 3px 7px rgba(255,255,255,.45), inset 0 -7px 11px rgba(0,0,0,.32);
+  }
+  .key.red:active{
+    background:radial-gradient(circle at 50% 28%, #e04343 0%, #b32b2b 60%, #8c1f1f 100%);
+    transform:translateY(4px);
+    box-shadow:0 2px 0 #6b1414, 0 3px 8px rgba(0,0,0,.45), inset 0 2px 7px rgba(0,0,0,.42);
+  }
   .ksub{ display:flex; justify-content:center; width:100%; }
   .key.submit{
-    width:96px; height:96px; font-size:24px; letter-spacing:1px;
-    background:radial-gradient(circle at 50% 35%, #ff6e6e 0%, #e04343 55%, #b32b2b 100%);
-    border:3px solid #ffe9b8;
-    box-shadow:0 0 0 4px rgba(224,67,67,.35), 0 5px 0 rgba(0,0,0,.30);
+    width:100px; height:100px; font-size:26px; letter-spacing:2px; font-weight:900;
+    background:radial-gradient(circle at 50% 32%, #ff8585 0%, #e04343 52%, #b32b2b 100%);
+    border:3px solid #ffe9b8; color:#fff; text-shadow:0 2px 3px rgba(0,0,0,.4);
+    box-shadow:0 0 0 4px rgba(224,67,67,.35), 0 6px 0 #8c1f1f, 0 10px 18px rgba(0,0,0,.5),
+               inset 0 3px 7px rgba(255,255,255,.4), inset 0 -7px 11px rgba(0,0,0,.3);
     animation:ansGlow 1.7s ease-in-out infinite;
   }
   .key.submit:active{
-    background:radial-gradient(circle at 50% 35%, #e04343 0%, #b32b2b 70%, #8c1f1f 100%);
-    transform:scale(.95); animation:none;
-    box-shadow:0 0 12px 3px rgba(255,120,120,.5);
+    background:radial-gradient(circle at 50% 32%, #e04343 0%, #b32b2b 70%, #8c1f1f 100%);
+    transform:translateY(4px) scale(.97); animation:none;
+    box-shadow:0 0 12px 3px rgba(255,120,120,.5), 0 2px 0 #6b1414;
   }
   @keyframes ansGlow{
-    0%,100%{ box-shadow:0 0 0 4px rgba(224,67,67,.35), 0 5px 0 rgba(0,0,0,.30); }
-    50%    { box-shadow:0 0 22px 6px rgba(255,110,110,.65), 0 5px 0 rgba(0,0,0,.30); }
+    0%,100%{ box-shadow:0 0 0 4px rgba(224,67,67,.35), 0 6px 0 #8c1f1f, 0 10px 18px rgba(0,0,0,.5); }
+    50%    { box-shadow:0 0 22px 6px rgba(255,110,110,.6), 0 6px 0 #8c1f1f, 0 10px 18px rgba(0,0,0,.5); }
   }
 
   /* 解答面板（答錯時顯示步驟） */
@@ -689,7 +704,7 @@
       <button type="button" class="key red" data-k="C">C</button>
     </div>
     <div class="ksub">
-      <button type="button" class="key submit" data-k="OK">答題 ✓</button>
+      <button type="button" class="key submit" data-k="OK">答題</button>
     </div>
   </div>
 </div>
