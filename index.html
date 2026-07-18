@@ -49,7 +49,7 @@
     position:relative; display:inline-flex; align-items:center; justify-content:center;
     padding:48px 60px;
     background-color:#82564e;                                   /* 木棕墊底（現 bigbar 已全不透明，正常不會露出） */
-    background-image:url(../assets/sprites/bigbar.png);
+    background-image:url(assets/sprites/bigbar.png);
     background-size:150% 150%;                                 /* 木紋放大（中間更粗），居中鋪滿 */
     background-position:center;
     background-repeat:no-repeat;
@@ -78,7 +78,7 @@
     font-size:18px; font-weight:900; color:#fff; letter-spacing:2px;
     border-radius:12px; min-width:170px; width:min(320px,80vw); min-height:54px;
     background-color:transparent;
-    background-image:url(../assets/sprites/bigbar.png);
+    background-image:url(assets/sprites/bigbar.png);
     background-size:100% 100%; background-repeat:no-repeat; background-position:center;
     text-shadow:0 2px 0 rgba(0,0,0,.45);
     box-shadow:0 6px 0 #2a1d12, 0 8px 16px rgba(0,0,0,.4);
@@ -97,7 +97,7 @@
   }
   .cornerbtn{
     background-color:transparent;
-    background-image:url(../assets/sprites/btn_sq.png);
+    background-image:url(assets/sprites/btn_sq.png);
     background-size:100% 100%; background-repeat:no-repeat; background-position:center;
     border:none; border-radius:20px; padding:12px 14px; min-width:46px; text-align:center;
     color:#fff; font-size:20px; font-weight:800; cursor:pointer; letter-spacing:0;
@@ -107,7 +107,7 @@
   }
   .cornerbtn:active{
     background-color:transparent;
-    background-image:url(../assets/sprites/btn_sq_press.png);
+    background-image:url(assets/sprites/btn_sq_press.png);
     transform:translateY(2px); filter:brightness(.95);
   }
 
@@ -142,7 +142,7 @@
   .panel-sub{font-size:12.5px; color:#7a5a2e; margin:-8px 0 16px; font-weight:600;}
   /* 遊戲說明：使用 Tiny Swords 的 SpecialPaper（9 塊拼合、調成羊皮紙色）作為背景 */
   .panel.help{
-    background-image:url(../assets/sprites/special_paper.png);
+    background-image:url(assets/sprites/special_paper.png);
     background-size:100% 100%; background-position:center; background-repeat:no-repeat;
     background-color:#e9d6ad;            /* 拉伸接縫處的兜底色 */
     border-color:#5a3d24;
@@ -275,7 +275,7 @@
   .quiz .coins{display:flex; align-items:center; font-size:16px; font-weight:800; color:var(--gold); gap:4px; min-width:62px; justify-content:flex-start;}
   .quiz .coins .coin-ic{width:22px; height:22px;}
   .quiz .buy{
-    background:transparent url(../assets/sprites/sword.png) center/contain no-repeat;
+    background:transparent url(assets/sprites/sword.png) center/contain no-repeat;
     border:none; border-radius:0;
     color:#1a1300; text-shadow:0 1px 0 rgba(255,255,255,.65),0 1px 2px rgba(255,255,255,.55);
     padding:0 8px 0 62px; min-width:0;
@@ -293,7 +293,7 @@
   /* 右側出兵按鈕：直向排列在草地中 */
   .troopbar{display:flex; flex-direction:row; gap:8px; flex-wrap:nowrap; justify-content:center; align-items:center; flex:0 0 auto; width:auto;}
   .troopbtn{
-    background:transparent url(../assets/sprites/sword.png) center/contain no-repeat;
+    background:transparent url(assets/sprites/sword.png) center/contain no-repeat;
     border:none; border-radius:0;
     color:#1a1300; text-shadow:0 1px 0 rgba(255,255,255,.7),0 1px 2px rgba(255,255,255,.6);
     padding:0 8px 0 40px; min-width:0;
@@ -323,21 +323,21 @@
   .kpad{ display:grid; grid-template-columns:repeat(3,78px); gap:12px; justify-content:center; }
   .key{
     width:78px; height:78px; border:none; border-radius:50%;
-    background:transparent url(../assets/sprites/btn_round_blue.png) center/100% 100% no-repeat;
+    background:transparent url(assets/sprites/btn_round_blue.png) center/100% 100% no-repeat;
     color:#fff; font-size:30px; font-weight:900; cursor:pointer;
     display:flex; align-items:center; justify-content:center;
     text-shadow:0 1px 2px rgba(0,0,0,.6);
     -webkit-tap-highlight-color:transparent; touch-action:manipulation; user-select:none;
   }
-  .key:active{ background-image:url(../assets/sprites/btn_round_blue_press.png); transform:scale(.93); }
-  .key.red{ background-image:url(../assets/sprites/btn_round_red.png); }
-  .key.red:active{ background-image:url(../assets/sprites/btn_round_red_press.png); }
+  .key:active{ background-image:url(assets/sprites/btn_round_blue_press.png); transform:scale(.93); }
+  .key.red{ background-image:url(assets/sprites/btn_round_red.png); }
+  .key.red:active{ background-image:url(assets/sprites/btn_round_red_press.png); }
   .ksub{ display:flex; justify-content:center; width:100%; }
   .key.submit{
     width:96px; height:96px; font-size:24px; letter-spacing:1px;
-    background:transparent url(../assets/sprites/btn_round_red_big.png) center/100% 100% no-repeat;
+    background:transparent url(assets/sprites/btn_round_red_big.png) center/100% 100% no-repeat;
   }
-  .key.submit:active{ background-image:url(../assets/sprites/btn_round_red_big_press.png); transform:scale(.96); }
+  .key.submit:active{ background-image:url(assets/sprites/btn_round_red_big_press.png); transform:scale(.96); }
 
   /* 解答面板（答錯時顯示步驟） */
   .sol-eq{font-size:24px; font-weight:900; color:#1a1300; background:#ffe9b0; border:2px solid #b8893f; border-radius:10px; padding:10px 16px; margin:6px 0 14px; text-align:center;}
@@ -359,7 +359,7 @@
   /* 太陽（自創 bg_sun，帶光暈，緩緩呼吸） */
   .menu-bg .mb-sun{
     position:absolute; top:5%; right:13%; width:118px; height:118px; z-index:1;
-    background:url(../assets/sprites/bg_sun.png) center/100% 100% no-repeat;
+    background:url(assets/sprites/bg_sun.png) center/100% 100% no-repeat;
     filter:drop-shadow(0 0 26px rgba(255,221,150,.55));
     animation:sunpulse 5s ease-in-out infinite;
   }
@@ -369,16 +369,16 @@
     position:absolute; z-index:1; pointer-events:none; opacity:.95; will-change:transform;
     background-repeat:no-repeat; background-position:center; background-size:contain;
   }
-  .menu-bg .c1{top:7%;  left:0; width:170px; height:64px; background-image:url(../assets/sprites/cloud00.png); animation:drift 62s linear infinite;}
-  .menu-bg .c2{top:20%; left:0; width:120px; height:46px; background-image:url(../assets/sprites/cloud01.png); animation:drift 78s linear infinite -18s;}
-  .menu-bg .c3{top:3%;  left:0; width:96px;  height:42px; background-image:url(../assets/sprites/cloud02.png); animation:drift 54s linear infinite -33s;}
-  .menu-bg .c4{top:26%; left:0; width:150px; height:56px; background-image:url(../assets/sprites/cloud04.png); animation:drift 86s linear infinite -8s;}
-  .menu-bg .c5{top:13%; left:0; width:120px; height:42px; background-image:url(../assets/sprites/cloud05.png); animation:drift 70s linear infinite -52s;}
+  .menu-bg .c1{top:7%;  left:0; width:170px; height:64px; background-image:url(assets/sprites/cloud00.png); animation:drift 62s linear infinite;}
+  .menu-bg .c2{top:20%; left:0; width:120px; height:46px; background-image:url(assets/sprites/cloud01.png); animation:drift 78s linear infinite -18s;}
+  .menu-bg .c3{top:3%;  left:0; width:96px;  height:42px; background-image:url(assets/sprites/cloud02.png); animation:drift 54s linear infinite -33s;}
+  .menu-bg .c4{top:26%; left:0; width:150px; height:56px; background-image:url(assets/sprites/cloud04.png); animation:drift 86s linear infinite -8s;}
+  .menu-bg .c5{top:13%; left:0; width:120px; height:42px; background-image:url(assets/sprites/cloud05.png); animation:drift 70s linear infinite -52s;}
   @keyframes drift{from{transform:translateX(-32vw)} to{transform:translateX(122vw)}}
   /* 遠山（自創剪影） */
   .menu-bg .mb-hills{
     position:absolute; left:-2%; right:-2%; bottom:23%; height:26%; z-index:1; opacity:.9;
-    background:url(../assets/sprites/bg_hills_far.png) center bottom/cover no-repeat;
+    background:url(assets/sprites/bg_hills_far.png) center bottom/cover no-repeat;
   }
   /* 草地 */
   .menu-bg .mb-ground{
@@ -389,30 +389,30 @@
   .menu-bg .spr{ position:absolute; background-repeat:no-repeat; background-position:bottom center; background-size:contain; }
   /* 城堡（藍左 / 紅右，退後為框景）；div 比例鎖定 1.25 與圖一致，門口=底、城垛=頂 */
   .menu-bg .mb-castle-l{ left:1%;  width:31%; aspect-ratio:1.25; bottom:17%; z-index:2;
-    background-image:url(../assets/sprites/castle_blue.png); filter:drop-shadow(0 6px 10px rgba(0,0,0,.35)); }
+    background-image:url(assets/sprites/castle_blue.png); filter:drop-shadow(0 6px 10px rgba(0,0,0,.35)); }
   .menu-bg .mb-castle-r{ right:1%; width:31%; aspect-ratio:1.25; bottom:17%; z-index:2;
-    background-image:url(../assets/sprites/castle_red.png); filter:drop-shadow(0 6px 10px rgba(0,0,0,.35)); }
+    background-image:url(assets/sprites/castle_red.png); filter:drop-shadow(0 6px 10px rgba(0,0,0,.35)); }
   /* 主樹（城堡內側） */
-  .menu-bg .mb-tree-a{ left:21%;  width:17%; height:48%; bottom:16%; z-index:3; background-image:url(../assets/sprites/tree00.png); }
-  .menu-bg .mb-tree-b{ right:21%; width:17%; height:48%; bottom:16%; z-index:3; background-image:url(../assets/sprites/tree01.png); }
+  .menu-bg .mb-tree-a{ left:21%;  width:17%; height:48%; bottom:16%; z-index:3; background-image:url(assets/sprites/tree00.png); }
+  .menu-bg .mb-tree-b{ right:21%; width:17%; height:48%; bottom:16%; z-index:3; background-image:url(assets/sprites/tree01.png); }
   /* 小樹（靠近中央但保留中央留白） */
-  .menu-bg .mb-tree-c{ left:34%;  width:11%; height:28%; bottom:16%; z-index:3; background-image:url(../assets/sprites/tree05.png); }
-  .menu-bg .mb-tree-d{ right:34%; width:11%; height:28%; bottom:16%; z-index:3; background-image:url(../assets/sprites/tree04.png); }
+  .menu-bg .mb-tree-c{ left:34%;  width:11%; height:28%; bottom:16%; z-index:3; background-image:url(assets/sprites/tree05.png); }
+  .menu-bg .mb-tree-d{ right:34%; width:11%; height:28%; bottom:16%; z-index:3; background-image:url(assets/sprites/tree04.png); }
   /* 灌木（自創提取第 0 幀） */
-  .menu-bg .mb-bush-1{ left:15%;  width:13%; height:13%; bottom:15%; z-index:4; background-image:url(../assets/sprites/menu_bush.png); }
-  .menu-bg .mb-bush-2{ right:15%; width:13%; height:13%; bottom:15%; z-index:4; background-image:url(../assets/sprites/menu_bush.png); }
-  .menu-bg .mb-bush-3{ left:30%;  width:10%; height:10%; bottom:15%; z-index:4; background-image:url(../assets/sprites/menu_bush.png); }
-  .menu-bg .mb-bush-4{ right:30%; width:10%; height:10%; bottom:15%; z-index:4; background-image:url(../assets/sprites/menu_bush.png); }
+  .menu-bg .mb-bush-1{ left:15%;  width:13%; height:13%; bottom:15%; z-index:4; background-image:url(assets/sprites/menu_bush.png); }
+  .menu-bg .mb-bush-2{ right:15%; width:13%; height:13%; bottom:15%; z-index:4; background-image:url(assets/sprites/menu_bush.png); }
+  .menu-bg .mb-bush-3{ left:30%;  width:10%; height:10%; bottom:15%; z-index:4; background-image:url(assets/sprites/menu_bush.png); }
+  .menu-bg .mb-bush-4{ right:30%; width:10%; height:10%; bottom:15%; z-index:4; background-image:url(assets/sprites/menu_bush.png); }
   /* 岩石 */
-  .menu-bg .mb-rock-1{ left:27%;  width:7%; height:9%; bottom:16%; z-index:4; background-image:url(../assets/sprites/rock.png); }
-  .menu-bg .mb-rock-2{ right:27%; width:7%; height:9%; bottom:16%; z-index:4; background-image:url(../assets/sprites/rock.png); }
+  .menu-bg .mb-rock-1{ left:27%;  width:7%; height:9%; bottom:16%; z-index:4; background-image:url(assets/sprites/rock.png); }
+  .menu-bg .mb-rock-2{ right:27%; width:7%; height:9%; bottom:16%; z-index:4; background-image:url(assets/sprites/rock.png); }
   /* 樹樁（前景角落） */
-  .menu-bg .mb-stump-1{ left:7%;  width:9%;  height:14%; bottom:14%; z-index:4; background-image:url(../assets/sprites/stump00.png); }
-  .menu-bg .mb-stump-2{ right:7%; width:9%;  height:14%; bottom:14%; z-index:4; background-image:url(../assets/sprites/stump01.png); }
+  .menu-bg .mb-stump-1{ left:7%;  width:9%;  height:14%; bottom:14%; z-index:4; background-image:url(assets/sprites/stump00.png); }
+  .menu-bg .mb-stump-2{ right:7%; width:9%;  height:14%; bottom:14%; z-index:4; background-image:url(assets/sprites/stump01.png); }
   /* 前景草叢（自創，最上層蓋住底部） */
   .menu-bg .mb-grass{
     position:absolute; left:0; right:0; bottom:0; height:15%; z-index:5;
-    background:url(../assets/sprites/bg_grass.png) center bottom/cover no-repeat;
+    background:url(assets/sprites/bg_grass.png) center bottom/cover no-repeat;
   }
   /* 草地中央：兩名步兵（藍左 / 紅右）交戰，用攻擊幀精靈表做逐幀動畫 */
   .menu-bg .mb-fight{
@@ -431,8 +431,8 @@
     background-repeat:no-repeat; background-size:800% 100%;
     animation:fightAtk .9s step-end infinite;
   }
-  .menu-bg .mb-fighter.blue > i{ background-image:url(../assets/sprites/blue_atk.png); }
-  .menu-bg .mb-fighter.red  > i{ background-image:url(../assets/sprites/red_atk.png); transform:scaleX(-1); }
+  .menu-bg .mb-fighter.blue > i{ background-image:url(assets/sprites/blue_atk.png); }
+  .menu-bg .mb-fighter.red  > i{ background-image:url(assets/sprites/red_atk.png); transform:scaleX(-1); }
   @keyframes fightAtk{
     0%    {background-position-x:0%;}
     12.5% {background-position-x:14.2857%;}
@@ -460,10 +460,10 @@
   }
   .menu-bg .mb-lancer > i{ background-size:1200% 100%; animation:sprPlay 1.6s steps(12, jump-none) infinite; }
   .menu-bg .mb-archer > i{ background-size:600% 100%;  animation:sprPlay 1.2s steps(6,  jump-none) infinite; }
-  .menu-bg .mb-lancer.l > i{ background-image:url(../assets/sprites/lancer_idle.png); }
-  .menu-bg .mb-archer.l > i{ background-image:url(../assets/sprites/archer_idle.png); }
-  .menu-bg .mb-lancer.r > i{ background-image:url(../assets/sprites/red_lancer_idle.png); transform:scaleX(-1); }
-  .menu-bg .mb-archer.r > i{ background-image:url(../assets/sprites/red_archer_idle.png); transform:scaleX(-1); }
+  .menu-bg .mb-lancer.l > i{ background-image:url(assets/sprites/lancer_idle.png); }
+  .menu-bg .mb-archer.l > i{ background-image:url(assets/sprites/archer_idle.png); }
+  .menu-bg .mb-lancer.r > i{ background-image:url(assets/sprites/red_lancer_idle.png); transform:scaleX(-1); }
+  .menu-bg .mb-archer.r > i{ background-image:url(assets/sprites/red_archer_idle.png); transform:scaleX(-1); }
   @keyframes sprPlay{ from{background-position-x:0%;} to{background-position-x:100%;} }
 
   .hidden{display:none !important;}
@@ -608,7 +608,7 @@
       <div class="q-left">
         <div class="qtext"><span id="qText">準備開始…</span></div>
         <div class="ansbox" id="ans"> </div>
-        <div class="coins"><img class="coin-ic" src="../assets/sprites/coin.png" alt=""><b id="coins">0</b></div>
+        <div class="coins"><img class="coin-ic" src="assets/sprites/coin.png" alt=""><b id="coins">0</b></div>
       </div>
       <div class="troopbar" id="troopbar"></div>
     </div>
@@ -760,53 +760,53 @@ const castleE = {x:W-115};
 
 const IM = {};
 const LOAD = [
-  ['p_idle','../assets/sprites/blue_idle.png',8],
-  ['p_run','../assets/sprites/blue_run.png',6],
-  ['blue_atk','../assets/sprites/blue_atk.png',8],
-  ['e_idle','../assets/sprites/red_idle.png',8],
-  ['e_run','../assets/sprites/red_run.png',6],
-  ['e_atk','../assets/sprites/red_atk.png',8],
-  ['red_archer_idle','../assets/sprites/red_archer_idle.png',6],
-  ['red_archer_run','../assets/sprites/red_archer_run.png',4],
-  ['red_archer_atk','../assets/sprites/red_archer_atk.png',8],
-  ['red_lancer_idle','../assets/sprites/red_lancer_idle.png',12],
-  ['red_lancer_run','../assets/sprites/red_lancer_run.png',6],
-  ['red_lancer_atk','../assets/sprites/red_lancer_atk.png',3],
-  ['archer_idle','../assets/sprites/archer_idle.png',6],
-  ['archer_run','../assets/sprites/archer_run.png',4],
-  ['archer_atk','../assets/sprites/archer_atk.png',8],
-  ['lancer_idle','../assets/sprites/lancer_idle.png',12],
-  ['lancer_run','../assets/sprites/lancer_run.png',6],
-  ['lancer_atk','../assets/sprites/lancer_atk.png',3],
-  ['arrow','../assets/sprites/arrow.png',1],
-  ['castle_p','../assets/sprites/castle_blue.png',1],
-  ['castle_e','../assets/sprites/castle_red.png',1],
-  ['bush','../assets/sprites/bush.png',8],
-  ['rock','../assets/sprites/rock.png',1],
-  ['tree00','../assets/sprites/tree00.png',1],
-  ['tree01','../assets/sprites/tree01.png',1],
-  ['tree02','../assets/sprites/tree02.png',1],
-  ['tree03','../assets/sprites/tree03.png',1],
-  ['tree04','../assets/sprites/tree04.png',1],
-  ['tree05','../assets/sprites/tree05.png',1],
-  ['tree06','../assets/sprites/tree06.png',1],
-  ['tree07','../assets/sprites/tree07.png',1],
-  ['stump00','../assets/sprites/stump00.png',1],
-  ['stump01','../assets/sprites/stump01.png',1],
-  ['stump02','../assets/sprites/stump02.png',1],
-  ['stump03','../assets/sprites/stump03.png',1],
-  ['cloud00','../assets/sprites/cloud00.png',1],
-  ['cloud01','../assets/sprites/cloud01.png',1],
-  ['cloud02','../assets/sprites/cloud02.png',1],
-  ['cloud03','../assets/sprites/cloud03.png',1],
-  ['cloud04','../assets/sprites/cloud04.png',1],
-  ['cloud05','../assets/sprites/cloud05.png',1],
-  ['cloud06','../assets/sprites/cloud06.png',1],
-  ['cloud07','../assets/sprites/cloud07.png',1],
-  ['bg_sun','../assets/sprites/bg_sun.png',1],
-  ['bg_hills_far','../assets/sprites/bg_hills_far.png',1],
-  ['bg_hills_near','../assets/sprites/bg_hills_near.png',1],
-  ['bg_grass','../assets/sprites/bg_grass.png',1],
+  ['p_idle','assets/sprites/blue_idle.png',8],
+  ['p_run','assets/sprites/blue_run.png',6],
+  ['blue_atk','assets/sprites/blue_atk.png',8],
+  ['e_idle','assets/sprites/red_idle.png',8],
+  ['e_run','assets/sprites/red_run.png',6],
+  ['e_atk','assets/sprites/red_atk.png',8],
+  ['red_archer_idle','assets/sprites/red_archer_idle.png',6],
+  ['red_archer_run','assets/sprites/red_archer_run.png',4],
+  ['red_archer_atk','assets/sprites/red_archer_atk.png',8],
+  ['red_lancer_idle','assets/sprites/red_lancer_idle.png',12],
+  ['red_lancer_run','assets/sprites/red_lancer_run.png',6],
+  ['red_lancer_atk','assets/sprites/red_lancer_atk.png',3],
+  ['archer_idle','assets/sprites/archer_idle.png',6],
+  ['archer_run','assets/sprites/archer_run.png',4],
+  ['archer_atk','assets/sprites/archer_atk.png',8],
+  ['lancer_idle','assets/sprites/lancer_idle.png',12],
+  ['lancer_run','assets/sprites/lancer_run.png',6],
+  ['lancer_atk','assets/sprites/lancer_atk.png',3],
+  ['arrow','assets/sprites/arrow.png',1],
+  ['castle_p','assets/sprites/castle_blue.png',1],
+  ['castle_e','assets/sprites/castle_red.png',1],
+  ['bush','assets/sprites/bush.png',8],
+  ['rock','assets/sprites/rock.png',1],
+  ['tree00','assets/sprites/tree00.png',1],
+  ['tree01','assets/sprites/tree01.png',1],
+  ['tree02','assets/sprites/tree02.png',1],
+  ['tree03','assets/sprites/tree03.png',1],
+  ['tree04','assets/sprites/tree04.png',1],
+  ['tree05','assets/sprites/tree05.png',1],
+  ['tree06','assets/sprites/tree06.png',1],
+  ['tree07','assets/sprites/tree07.png',1],
+  ['stump00','assets/sprites/stump00.png',1],
+  ['stump01','assets/sprites/stump01.png',1],
+  ['stump02','assets/sprites/stump02.png',1],
+  ['stump03','assets/sprites/stump03.png',1],
+  ['cloud00','assets/sprites/cloud00.png',1],
+  ['cloud01','assets/sprites/cloud01.png',1],
+  ['cloud02','assets/sprites/cloud02.png',1],
+  ['cloud03','assets/sprites/cloud03.png',1],
+  ['cloud04','assets/sprites/cloud04.png',1],
+  ['cloud05','assets/sprites/cloud05.png',1],
+  ['cloud06','assets/sprites/cloud06.png',1],
+  ['cloud07','assets/sprites/cloud07.png',1],
+  ['bg_sun','assets/sprites/bg_sun.png',1],
+  ['bg_hills_far','assets/sprites/bg_hills_far.png',1],
+  ['bg_hills_near','assets/sprites/bg_hills_near.png',1],
+  ['bg_grass','assets/sprites/bg_grass.png',1],
 ];
 const FRAMES = {};
 
@@ -1445,7 +1445,7 @@ function buildTroopBar(){
     b.className='troopbtn';
     b.id='buy_'+tp;
     // 全部兵種統一用同一張劍圖當背景，文字（兵種名+價格）落在劍刃上
-    b.innerHTML = '<span class="tlabel">'+t.label+' '+t.cost+'<img class="coin-ic" src="../assets/sprites/coin.png" alt=""></span>';
+    b.innerHTML = '<span class="tlabel">'+t.label+' '+t.cost+'<img class="coin-ic" src="assets/sprites/coin.png" alt=""></span>';
     b.addEventListener('click',()=>buyTroop(tp));
     bar.appendChild(b);
   });
