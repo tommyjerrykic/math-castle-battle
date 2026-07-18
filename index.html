@@ -36,7 +36,7 @@
     display:flex; align-items:stretch; justify-content:center;
     border:none; border-radius:0; box-shadow:none;
   }
-  canvas{display:block; width:100%; height:100%; object-fit:contain; touch-action:manipulation;}
+  canvas{display:block; width:100%; height:100%; touch-action:manipulation;}
 
   /* ---------- 主選單 ---------- */
   .menu{
@@ -351,6 +351,22 @@
   .wrong-list .wl-q{font-size:16px; font-weight:700;}
   .wrong-list .wl-a{font-size:14px; color:#ffb3b3;}
 
+  /* 主選單專屬背景層（獨立於戰場 canvas，暫用 CSS 占位，重新設計時整層替換） */
+  .menu-bg{
+    position:absolute; inset:0; z-index:2; overflow:hidden;
+    background:linear-gradient(180deg,#1b2350 0%,#3a568f 46%,#cf8e5e 80%,#f0b873 100%);
+  }
+  .menu-bg .mb-sun{
+    position:absolute; top:7%; right:22%; width:96px; height:96px; border-radius:50%;
+    background:radial-gradient(circle at 50% 50%,#fff7da 0%,#ffd98a 55%,rgba(255,217,138,0) 75%);
+    box-shadow:0 0 70px 34px rgba(255,221,150,.30);
+  }
+  .menu-bg .mb-hill{ position:absolute; bottom:34%; height:16%; background:#5b86c4; }
+  .menu-bg .mb-hill-l{ left:-6%; right:52%; border-radius:0 100% 0 0 / 0 100% 0 0; }
+  .menu-bg .mb-hill-r{ left:52%; right:-6%; border-radius:100% 0 0 0 / 100% 0 0 0; }
+  .menu-bg .mb-ground{ position:absolute; left:0; right:0; bottom:0; height:34%;
+    background:linear-gradient(180deg,#3f7d3a,#244a22); }
+
   .hidden{display:none !important;}
 </style>
 </head>
@@ -358,6 +374,14 @@
 <div class="wrap">
   <div class="stage">
     <canvas id="cv" width="900" height="560"></canvas>
+
+    <!-- 主選單專屬背景層（與戰場 canvas 完全分開；重新設計主界面背景時只改這裡） -->
+    <div class="menu-bg hidden" id="menuBg">
+      <div class="mb-sun"></div>
+      <div class="mb-hill mb-hill-l"></div>
+      <div class="mb-hill mb-hill-r"></div>
+      <div class="mb-ground"></div>
+    </div>
 
     <!-- 主選單 -->
     <div class="menu" id="menu">
@@ -955,15 +979,15 @@ function drawMenuScene(){
   if(imgReady('bg_sun')) ctx.drawImage(IM['bg_sun'], sx-95, -3, 190, 190);
   // 4) 雲朵（沿用戰場飄動雲）
   drawClouds();
-  // 5) 遠山（自創剪影，等比縮放）
-  if(imgReady('bg_hills_far')){ const img=IM['bg_hills_far']; const tH=260, tW=img.width*(tH/img.height); ctx.drawImage(img,(W-tW)/2, gy-205, tW, tH); }
+  // 5) 遠山（自創剪影）
+  if(imgReady('bg_hills_far')){ const img=IM['bg_hills_far']; ctx.drawImage(img,(W-img.width)/2, gy-205, img.width, 260); }
   // 6) 草地（全屏下段）
   const gg=ctx.createLinearGradient(0,gy,0,H);
   gg.addColorStop(0,'#3f7d3a'); gg.addColorStop(1,'#244a22');
   ctx.fillStyle=gg; ctx.fillRect(0,gy,W,H-gy);
   ctx.fillStyle='#2c5a28'; ctx.fillRect(0,gy,W,4);            // 地平線接地
-  // 7) 近山（自創緩丘，等比縮放）
-  if(imgReady('bg_hills_near')){ const img=IM['bg_hills_near']; const tH=175, tW=img.width*(tH/img.height); ctx.drawImage(img,(W-tW)/2, gy-130, tW, tH); }
+  // 7) 近山（自創緩丘，蓋在草地上方做出層次）
+  if(imgReady('bg_hills_near')){ const img=IM['bg_hills_near']; ctx.drawImage(img,(W-img.width)/2, gy-130, img.width, 175); }
   // 8) 遠景兩座城堡（藍左紅右，淡淡作為背景）
   drawMenuCastles(gy);
   // 9) 樹木 / 灌木框景（避開中央標題區）
@@ -1110,7 +1134,7 @@ function drawProjectiles(){
 function loop(t){
   if(!lastT) lastT=t;
   const dt=Math.min(0.05,(t-lastT)/1000); lastT=t; clock+=dt;
-  if(SCREEN==='menu'){ menuTick(dt); drawMenuScene(); }
+  if(SCREEN==='menu'){ menuTick(dt); /* 主選單背景由 #menuBg(DOM) 負責，畫布隱藏不在此繪製 */ }
   else if(SCREEN==='playing'){ if(!solOpen) step(dt,false); updateParticles(dt); draw(); }
   else { updateParticles(dt); draw(); } // over：粒子繼續淡出
   requestAnimationFrame(loop);
@@ -1122,6 +1146,8 @@ function showMenu(){
   particles=[];
   state=newState(); setupMenuTroops();
   document.getElementById('menu').classList.remove('hidden');
+  document.getElementById('menuBg').classList.remove('hidden');
+  document.getElementById('cv').classList.add('hidden');
   document.getElementById('over').style.display='none';
   document.getElementById('topbar').classList.add('hidden');
   document.getElementById('quizBox').classList.add('hidden');
@@ -1134,6 +1160,8 @@ function startGame(){
   SCREEN='playing';
   state=newState(); state.startTime=Date.now(); enemyTimer=enemySpawnInterval();
   document.getElementById('menu').classList.add('hidden');
+  document.getElementById('menuBg').classList.add('hidden');
+  document.getElementById('cv').classList.remove('hidden');
   document.getElementById('over').style.display='none';
   document.getElementById('topbar').classList.remove('hidden');
   document.getElementById('quizBox').classList.remove('hidden');
@@ -1143,6 +1171,8 @@ function startGame(){
 }
 function endGame(win){
   SCREEN='over';
+  document.getElementById('menuBg').classList.add('hidden');
+  document.getElementById('cv').classList.remove('hidden');
   if(win) sfx.win(); else sfx.lose();
   document.getElementById('overTitle').textContent=win?'🎉 攻陷敵城，勝利！':'💥 我方城堡淪陷…';
   document.getElementById('overTitle').style.color=win?'#ffd166':'#ff6b6b';
@@ -1178,6 +1208,8 @@ function quitGame(){
   ctx.fillStyle='#9aa6c4'; ctx.font='15px "Microsoft JhengHei",sans-serif';
   ctx.fillText('可直接關閉此分頁；或重新整理回到主選單', W/2, H/2+28);
   document.getElementById('menu').classList.add('hidden');
+  document.getElementById('menuBg').classList.add('hidden');
+  document.getElementById('cv').classList.remove('hidden');
   document.getElementById('quizBox').classList.add('hidden');
   document.getElementById('keyboard').classList.add('hidden');
   document.getElementById('topInfo').classList.add('hidden');
