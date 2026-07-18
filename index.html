@@ -387,10 +387,10 @@
   }
   /* 站立的精靈：底端對齊地平線，背景 contain 不變形 */
   .menu-bg .spr{ position:absolute; background-repeat:no-repeat; background-position:bottom center; background-size:contain; }
-  /* 城堡（藍左 / 紅右，退後為框景） */
-  .menu-bg .mb-castle-l{ left:1%;  width:31%; height:40%; bottom:17%; z-index:2;
+  /* 城堡（藍左 / 紅右，退後為框景）；div 比例鎖定 1.25 與圖一致，門口=底、城垛=頂 */
+  .menu-bg .mb-castle-l{ left:1%;  width:31%; aspect-ratio:1.25; bottom:17%; z-index:2;
     background-image:url(../assets/sprites/castle_blue.png); filter:drop-shadow(0 6px 10px rgba(0,0,0,.35)); }
-  .menu-bg .mb-castle-r{ right:1%; width:31%; height:40%; bottom:17%; z-index:2;
+  .menu-bg .mb-castle-r{ right:1%; width:31%; aspect-ratio:1.25; bottom:17%; z-index:2;
     background-image:url(../assets/sprites/castle_red.png); filter:drop-shadow(0 6px 10px rgba(0,0,0,.35)); }
   /* 主樹（城堡內側） */
   .menu-bg .mb-tree-a{ left:21%;  width:17%; height:48%; bottom:16%; z-index:3; background-image:url(../assets/sprites/tree00.png); }
@@ -446,6 +446,26 @@
   }
   @keyframes bob{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-3px);} }
 
+  /* 城堡門口槍兵（藍左 / 紅右）與城堡頂弓箭兵（獨立層，z4 蓋過城堡與前景裝飾） */
+  .menu-bg .mb-lancer, .menu-bg .mb-archer{
+    position:absolute; z-index:4; aspect-ratio:1; pointer-events:none;
+  }
+  .menu-bg .mb-lancer{ bottom:17%; width:9.3%; }
+  .menu-bg .mb-archer{ bottom:35%; width:7.4%; }
+  .menu-bg .mb-lancer.l, .menu-bg .mb-archer.l{ left:16.5%; transform:translateX(-50%); }
+  .menu-bg .mb-lancer.r, .menu-bg .mb-archer.r{ left:83.5%; transform:translateX(-50%); }
+  .menu-bg .mb-lancer > i, .menu-bg .mb-archer > i{
+    display:block; width:100%; height:100%;
+    background-repeat:no-repeat; background-position:0 0;
+  }
+  .menu-bg .mb-lancer > i{ background-size:1200% 100%; animation:sprPlay 1.6s steps(12, jump-none) infinite; }
+  .menu-bg .mb-archer > i{ background-size:600% 100%;  animation:sprPlay 1.2s steps(6,  jump-none) infinite; }
+  .menu-bg .mb-lancer.l > i{ background-image:url(../assets/sprites/lancer_idle.png); }
+  .menu-bg .mb-archer.l > i{ background-image:url(../assets/sprites/archer_idle.png); }
+  .menu-bg .mb-lancer.r > i{ background-image:url(../assets/sprites/red_lancer_idle.png); transform:scaleX(-1); }
+  .menu-bg .mb-archer.r > i{ background-image:url(../assets/sprites/red_archer_idle.png); transform:scaleX(-1); }
+  @keyframes sprPlay{ from{background-position-x:0%;} to{background-position-x:100%;} }
+
   .hidden{display:none !important;}
 </style>
 </head>
@@ -478,6 +498,11 @@
       <div class="spr mb-rock-2"></div>
       <div class="spr mb-stump-1"></div>
       <div class="spr mb-stump-2"></div>
+      <!-- 城堡門口槍兵（藍左 / 紅右）與城堡頂弓箭兵 -->
+      <div class="mb-lancer l"><i></i></div>
+      <div class="mb-lancer r"><i></i></div>
+      <div class="mb-archer l"><i></i></div>
+      <div class="mb-archer r"><i></i></div>
       <div class="mb-fight">
         <div class="mb-fighter blue"><i></i></div>
         <div class="mb-fighter red"><i></i></div>
