@@ -1451,6 +1451,65 @@ function drawDecor(){
     const dh=it.h,dw=dh*(sw/img.height);
     ctx.drawImage(img,0,0,sw,img.height,it.x-dw/2,GROUND_Y-dh,dw,dh);
   }
+  drawGroundDecor();   // 下半草坡的小裝飾（不擋地平線上的小兵）
+}
+/* 戰場草坡上的小裝飾：草叢 / 野花 / 蘑菇 / 小石，散布在下半草地，做出層次與生命力 */
+const GROUND_DECOR=[
+  {t:'tuft',x:70, y:430,s:1.00}, {t:'mushroom',x:135,y:470,s:1.05}, {t:'flower',x:205,y:415,s:0.95}, {t:'pebble',x:100,y:505,s:1.00},
+  {t:'tuft',x:265,y:525,s:1.30}, {t:'flower',x:360,y:455,s:1.05}, {t:'tuft',x:430,y:535,s:1.40}, {t:'mushroom',x:520,y:445,s:1.00},
+  {t:'flower',x:560,y:500,s:1.15}, {t:'tuft',x:645,y:425,s:0.95}, {t:'mushroom',x:715,y:485,s:1.10}, {t:'flower',x:790,y:445,s:1.00},
+  {t:'tuft',x:845,y:530,s:1.30}, {t:'pebble',x:765,y:515,s:1.00},
+];
+function drawGroundDecor(){
+  for(const d of GROUND_DECOR){
+    if(d.t==='tuft') drawTuft(d.x,d.y,d.s);
+    else if(d.t==='flower') drawFlower(d.x,d.y,d.s);
+    else if(d.t==='mushroom') drawMushroom(d.x,d.y,d.s);
+    else if(d.t==='pebble') drawPebble(d.x,d.y,d.s);
+  }
+}
+function drawTuft(x,by,s){
+  ctx.save();
+  ctx.lineCap='round';
+  ctx.strokeStyle='#2f6b2c'; ctx.lineWidth=2.2*s;
+  for(let i=0;i<5;i++){ const ox=(i-2)*3.1*s, lean=(i-2)*2.2;
+    ctx.beginPath(); ctx.moveTo(x+ox,by); ctx.quadraticCurveTo(x+ox+lean*0.5,by-12*s,x+ox+lean,by-20*s); ctx.stroke(); }
+  ctx.strokeStyle='#3c823a'; ctx.lineWidth=1.8*s;
+  for(let i=0;i<3;i++){ const ox=(i-1)*4.2*s;
+    ctx.beginPath(); ctx.moveTo(x+ox,by); ctx.quadraticCurveTo(x+ox,by-14*s,x+ox+(i-1)*1.6,by-19*s); ctx.stroke(); }
+  ctx.restore();
+}
+function drawFlower(x,by,s){
+  const cols=['#ff85c0','#b083ff','#ff9d5c'];
+  const spots=[[-7,0],[0,-10],[7,-2]];
+  ctx.save();
+  ctx.strokeStyle='#3e7d3a'; ctx.lineWidth=1.8*s; ctx.lineCap='round';
+  for(const [dx,dy] of spots){ ctx.beginPath(); ctx.moveTo(x,by); ctx.quadraticCurveTo(x+dx*0.5*s,by-12*s,x+dx*s,by+dy*s); ctx.stroke(); }
+  for(let i=0;i<spots.length;i++) drawBlossom(x+spots[i][0]*s, by+spots[i][1]*s, 4.2*s, cols[i]);
+  ctx.restore();
+}
+function drawBlossom(x,y,r,col){
+  ctx.save(); ctx.fillStyle=col;
+  for(let a=0;a<4;a++){ const ang=a*Math.PI/2; ctx.beginPath(); ctx.ellipse(x+Math.cos(ang)*r*0.9, y+Math.sin(ang)*r*0.9, r*0.7, r*0.7, ang, 0, Math.PI*2); ctx.fill(); }
+  ctx.fillStyle='#ffd84d'; ctx.beginPath(); ctx.arc(x,y,r*0.55,0,Math.PI*2); ctx.fill();
+  ctx.restore();
+}
+function drawMushroom(x,by,s){
+  ctx.save();
+  ctx.fillStyle='#efe2c8'; ctx.beginPath();
+  ctx.moveTo(x-3*s,by); ctx.lineTo(x-2.4*s,by-12*s); ctx.quadraticCurveTo(x,by-15*s,x+2.4*s,by-12*s); ctx.lineTo(x+3*s,by); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#d8453b'; ctx.beginPath(); ctx.moveTo(x-9*s,by-11*s); ctx.quadraticCurveTo(x,by-22*s,x+9*s,by-11*s); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#fff';
+  ctx.beginPath(); ctx.arc(x-4*s,by-14*s,1.4*s,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x+3*s,by-15*s,1.4*s,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x+1*s,by-12*s,1.2*s,0,Math.PI*2); ctx.fill();
+  ctx.restore();
+}
+function drawPebble(x,by,s){
+  ctx.save();
+  ctx.fillStyle='#7f857c'; ctx.beginPath(); ctx.ellipse(x,by-3*s,7*s,4.5*s,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#9aa195'; ctx.beginPath(); ctx.ellipse(x-1*s,by-4*s,4*s,2.6*s,0,0,Math.PI*2); ctx.fill();
+  ctx.restore();
 }
 function drawCastle(side){
   const key=side==='p'?'castle_p':'castle_e'; const gate=side==='p'?castleP.x:castleE.x;
