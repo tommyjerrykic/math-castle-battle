@@ -227,7 +227,7 @@
   .banner{
     position:absolute; inset:0; display:none; flex-direction:column; gap:16px;
     align-items:center; justify-content:center; background:rgba(8,10,20,.82);
-    text-align:center; z-index:5;
+    text-align:center; z-index:5; overflow-y:auto; padding:24px 16px;
   }
   .banner h2{font-size:34px; margin:0;}
   .banner .row{display:flex; gap:18px; flex-wrap:wrap; justify-content:center;}
@@ -339,6 +339,18 @@
   }
   .key.submit:active{ background-image:url(assets/sprites/btn_round_red_big_press.png); transform:scale(.96); }
 
+  /* 解答面板（答錯時顯示步驟） */
+  .sol-eq{font-size:24px; font-weight:900; color:#1a1300; background:#ffe9b0; border:2px solid #b8893f; border-radius:10px; padding:10px 16px; margin:6px 0 14px; text-align:center;}
+  .sol-steps{margin:0 0 8px; padding-left:22px; color:#3a2c12; font-size:16px; line-height:1.9; font-weight:600;}
+  .sol-steps li{margin:3px 0;}
+  /* 結算：錯題回顧清單 */
+  .wrong-list{max-width:560px; width:92%; max-height:40vh; overflow-y:auto; text-align:left; background:rgba(0,0,0,.28); border:1px solid rgba(184,145,80,.5); border-radius:12px; padding:10px 16px; color:#f3e7c8;}
+  .wrong-list .wl-title{font-weight:800; color:#ffd166; margin-bottom:8px; text-align:center;}
+  .wrong-list .wl-item{display:flex; flex-direction:column; gap:2px; padding:7px 0; border-bottom:1px dashed rgba(184,145,80,.35);}
+  .wrong-list .wl-item:last-child{border-bottom:none;}
+  .wrong-list .wl-q{font-size:16px; font-weight:700;}
+  .wrong-list .wl-a{font-size:14px; color:#ffb3b3;}
+
   .hidden{display:none !important;}
 </style>
 </head>
@@ -399,7 +411,7 @@
           <h4>⚔️ 玩法</h4>
           <ul>
             <li>用下方螢幕鍵盤輸入答案，按「答題」送出。</li>
-            <li>答對出兵，答錯可再試一次。</li>
+            <li>答對出兵；答錯會顯示正確解法，按「繼續」換下一題。</li>
             <li>敵城按設定間隔自動出兵，兩軍於中路廝殺。</li>
           </ul>
           <h4>🪞 兵種相剋</h4>
@@ -417,6 +429,17 @@
         <div class="row">
           <button class="txtbtn" id="helpClose">知道了</button>
         </div>
+      </div>
+    </div>
+
+    <!-- 解答（答錯時顯示步驟） -->
+    <div class="overlay hidden" id="solPanel">
+      <div class="panel">
+        <h3>解答</h3>
+        <div class="panel-sub" id="solSub"></div>
+        <div class="sol-eq" id="solEq"></div>
+        <ol class="sol-steps" id="solSteps"></ol>
+        <div class="row"><button class="txtbtn" id="solNext">繼續</button></div>
       </div>
     </div>
 
@@ -443,6 +466,7 @@
     <div class="banner" id="over">
       <h2 id="overTitle"></h2>
       <div class="over-stats" id="overStats"></div>
+      <div class="wrong-list hidden" id="wrongList"></div>
       <div class="row">
         <button class="txtbtn" id="btnAgain">再玩一次</button>
         <button class="txtbtn ghost" id="btnMenu">返回主選單</button>
@@ -474,58 +498,38 @@
 
 <script>
 /* ===================== 可編輯設定區 ===================== */
-const QUESTIONS = [
-  {q:"x + 5 = 12", a:7},
-  {q:"x − 3 = 9", a:12},
-  {q:"2x = 14", a:7},
-  {q:"3x = 21", a:7},
-  {q:"2x + 4 = 14", a:5},
-  {q:"5x − 2 = 18", a:4},
-  {q:"3x + 1 = 10", a:3},
-  {q:"4x − 7 = 9", a:4},
-  {q:"x ÷ 2 = 6", a:12},
-  {q:"x / 3 = 4", a:12},
-  {q:"2x + 3 = x + 8", a:5},
-  {q:"5x = 3x + 14", a:7},
-  {q:"2(x + 1) = 10", a:4},
-  {q:"3(x − 2) = 9", a:5},
-  {q:"2x + 5 = 3x − 1", a:6},
-  {q:"4x − 3 = 2x + 7", a:5},
-  {q:"6x + 2 = 4x + 10", a:4},
-  {q:"7 − 2x = 1", a:3},
-  {q:"3x + 2 = 2x + 9", a:7},
-  {q:"x / 4 + 3 = 5", a:8},
-  {q:"x + 8 = 3", a:-5},
-  {q:"x − 5 = −2", a:3},
-  {q:"2x = −10", a:-5},
-  {q:"−3x = 12", a:-4},
-  {q:"3x = −15", a:-5},
-  {q:"x ÷ 2 = −4", a:-8},
-  {q:"5x + 3 = −12", a:-3},
-  {q:"2x − 7 = −13", a:-3},
-  {q:"4x + 5 = −11", a:-4},
-  {q:"−2x + 6 = 14", a:-4},
-  {q:"3x − 4 = −13", a:-3},
-  {q:"6x = −18", a:-3},
-  {q:"x + 10 = 4", a:-6},
-  {q:"7x + 2 = −19", a:-3},
-  {q:"−x = 9", a:-9},
-  {q:"−x = −5", a:5},
-  {q:"2x + 9 = 1", a:-4},
-  {q:"5x − 8 = −23", a:-3},
-  {q:"3(x + 2) = −9", a:-5},
-  {q:"2(x − 3) = −10", a:-2},
-  {q:"4(x + 1) = 12", a:2},
-  {q:"−3x + 5 = 14", a:-3},
-  {q:"8 − 3x = 2", a:2},
-  {q:"10 − 4x = 2", a:2},
-  {q:"2x + 1 = 3x − 4", a:5},
-  {q:"5x − 3 = 2x + 6", a:3},
-  {q:"7x + 4 = 4x − 5", a:-3},
-  {q:"x / 2 + 5 = 2", a:-6},
-  {q:"x / 3 − 2 = −4", a:-6},
-  {q:"2x + 3 = −x + 9", a:2},
-];
+/* ===================== 隨機出題（取代固定題庫） =====================
+   依多種一元一次方程模板隨機生成，保證答案為整數、數值適中；
+   每題附 steps 陣列，供答錯時顯示解題步驟。 */
+function rnd(a,b){ return a + Math.floor(Math.random()*(b-a+1)); }
+function M(n){ return (n<0 ? '−'+Math.abs(n) : ''+n); }   // 負數顯示為 −n
+function genQuestion(){
+  // 常數項符號輔助：避免出現「+ -3」「− -3」這類混淆寫法
+  const sc = v => v===0 ? '' : (v<0 ? ' − '+Math.abs(v) : ' + '+v);   // 變數項後接「+v」
+  const mc = v => v===0 ? '' : (v<0 ? ' + '+Math.abs(v) : ' − '+v);   // 變數項後接「−v」
+  const sub = (a,b) => b<0 ? a+' + '+Math.abs(b) : a+' − '+b;         // a − b（b 可能為負）
+  const add = (a,b) => b<0 ? a+' − '+Math.abs(b) : a+' + '+b;         // a + b（b 可能為負）
+  const T = rnd(0,13);
+  let q='', steps=[], x=0;
+  switch(T){
+    case 0: { const b=rnd(1,12); x=rnd(-6,12); q=`x + ${b} = ${M(x+b)}`; steps=[`移項：${M(x+b)} − ${b} = ${x}`]; break; }
+    case 1: { const b=rnd(1,12); x=rnd(-6,12); q=`x − ${b} = ${M(x-b)}`; steps=[`移項：${M(x-b)} + ${b} = ${x}`]; break; }
+    case 2: { const a=rnd(2,7); x=rnd(-9,12); q=`${a}x = ${M(a*x)}`; steps=[`除以 ${a}：${M(a*x)} ÷ ${a} = ${x}`]; break; }
+    case 3: { const a=rnd(2,5), b=rnd(1,9); x=rnd(-7,9); q=`${a}x + ${b} = ${M(a*x+b)}`; steps=[`移常數：${M(a*x+b)} − ${b} = ${M(a*x)}`, `除以 ${a}：${M(a*x)} ÷ ${a} = ${x}`]; break; }
+    case 4: { const a=rnd(2,5), b=rnd(1,9); x=rnd(-7,9); q=`${a}x − ${b} = ${M(a*x-b)}`; steps=[`移常數：${M(a*x-b)} + ${b} = ${M(a*x)}`, `除以 ${a}：${M(a*x)} ÷ ${a} = ${x}`]; break; }
+    case 5: { const d=rnd(2,5), k=rnd(-5,6); x=d*k; const b=rnd(1,8); const rhs=x/d+b; q=`x ÷ ${d} + ${b} = ${M(rhs)}`; steps=[`移常數：${M(rhs)} − ${b} = ${M(x/d)}`, `乘 ${d}：${M(x/d)} × ${d} = ${x}`]; break; }
+    case 6: { const d=rnd(2,5), k=rnd(-5,6); x=d*k; const b=rnd(1,8); const rhs=x/d-b; q=`x ÷ ${d} − ${b} = ${M(rhs)}`; steps=[`移常數：${M(rhs)} + ${b} = ${M(x/d)}`, `乘 ${d}：${M(x/d)} × ${d} = ${x}`]; break; }
+    case 7: { const a=rnd(2,5), b=rnd(1,9); x=rnd(-6,8); const inner=x+b; const rhs=a*inner; q=`${a}(x + ${b}) = ${M(rhs)}`; steps=[`去括號外除：${M(rhs)} ÷ ${a} = ${M(inner)}`, `移常數：${M(inner)} − ${b} = ${x}`]; break; }
+    case 8: { const a=rnd(2,5), b=rnd(1,9); x=rnd(-6,8); const inner=x-b; const rhs=a*inner; q=`${a}(x − ${b}) = ${M(rhs)}`; steps=[`去括號外除：${M(rhs)} ÷ ${a} = ${M(inner)}`, `移常數：${M(inner)} + ${b} = ${x}`]; break; }
+    case 9: { const a=rnd(2,5), c=rnd(2,5); if(a===c) return genQuestion(); const b=rnd(-8,8); x=rnd(-6,8); const d=b+(a-c)*x; q=`${a}x${sc(b)} = ${c}x${sc(d)}`; steps=[`移項：${a}x − ${c}x = ${sub(M(d),b)}`, `合併：${M(a-c)}x = ${M(d-b)}`, `x = ${M(d-b)} ÷ ${M(a-c)} = ${x}`]; break; }
+    case 10:{ const a=rnd(2,5), c=rnd(2,5); if(a===c) return genQuestion(); const b=rnd(-8,8); x=rnd(-6,8); const d=(a-c)*x - b; q=`${a}x${mc(b)} = ${c}x${sc(d)}`; steps=[`移項：${a}x − ${c}x = ${add(M(d),b)}`, `合併：${M(a-c)}x = ${M(d+b)}`, `x = ${M(d+b)} ÷ ${M(a-c)} = ${x}`]; break; }
+    case 11:{ const a=rnd(2,5), b=rnd(-8,10); x=rnd(-8,9); const C=b-a*x; q=`${b} − ${a}x = ${M(C)}`; steps=[`移項：−${a}x = ${sub(M(C),b)}`, `計算：−${a}x = ${M(C-b)}`, `x = ${M(C-b)} ÷ (−${a}) = ${x}`]; break; }
+    case 12:{ const a=rnd(2,6); x=rnd(-9,9); q=`−${a}x = ${M(-a*x)}`; steps=[`除以 −${a}：${M(-a*x)} ÷ (−${a}) = ${x}`]; break; }
+    case 13:{ x=rnd(-9,9); q=`−x = ${M(-x)}`; steps=[`兩邊乘 −1：x = ${x}`]; break; }
+  }
+  return {q, a:x, steps};
+}
+
 
 let CASTLE_HP   = 100;
 const UNIT_HP     = 35;
@@ -704,6 +708,7 @@ function drawParticles(){
 }
 
 let SCREEN='menu';           // 'menu' | 'playing' | 'over'
+let solOpen=false;            // 解答面板是否開啟（開啟時暫停戰場、鎖定螢幕鍵盤）
 let ansText='';              // 螢幕鍵盤輸入的目前答案（不用原生 input，避免彈出系統鍵盤）
 let state, lastT=0, enemyTimer, demoTimer, curQ, clock=0;
 
@@ -720,7 +725,7 @@ function preload(cb){
 }
 function imgReady(k){ const i=IM[k]; return i&&i.complete&&i.naturalWidth>0; }
 
-function newState(){ return {units:[], projectiles:[], pHP:CASTLE_HP, eHP:CASTLE_HP, correct:0, wrong:0, coins:0}; }
+function newState(){ return {units:[], projectiles:[], pHP:CASTLE_HP, eHP:CASTLE_HP, correct:0, wrong:0, coins:0, wrongList:[], startTime:0}; }
 function spawn(side, type){
   if(side==='e'){
     const etypes=TROOP_ORDER.filter(tp=>enemyTypes[tp]);   // 只從設定的可出兵種中隨機
@@ -752,7 +757,7 @@ function menuTick(dt){
 }
 
 function pickQuestion(){
-  curQ=QUESTIONS[Math.floor(Math.random()*QUESTIONS.length)];
+  curQ=genQuestion();
   document.getElementById('qText').innerHTML=renderQ(curQ.q);
   setAns('');   // 清空螢幕鍵盤輸入
 }
@@ -769,7 +774,7 @@ function setAns(t){
   el.classList.remove('flash');
 }
 function pressKey(k){
-  if(SCREEN!=='playing') return;
+  if(SCREEN!=='playing' || solOpen) return;
   if(k==='C'){ setAns(''); return; }
   if(k==='OK'){ checkAnswer(); return; }
   if(k==='minus'){ if(ansText==='' || ansText==='-') setAns('-'); return; }   // 只允許開頭負號
@@ -777,16 +782,33 @@ function pressKey(k){
   setAns(ansText + k);
 }
 function checkAnswer(){
-  if(SCREEN!=='playing') return;
+  if(SCREEN!=='playing' || solOpen) return;
   const v=parseFloat(ansText);
   if(isNaN(v)) return;
   if(Math.abs(v-curQ.a)<1e-6){
     state.correct++; state.coins+=5; sfx.coin();                  // 答對 +5 金幣（不再自動出兵）
     burst(W/2, GROUND_Y-30, '#ffd347', 12);                       // 金幣迸發特效
+    updateStats();
+    pickQuestion();   // 答對 → 直接換下一題
   }
-  else{ state.wrong++; sfx.wrong(); const el=document.getElementById('ans'); el.classList.add('flash'); setTimeout(()=>el.classList.remove('flash'),350); } // 答錯：紅框閃一下
-  updateStats();
-  pickQuestion();   // 無論對錯都直接換下一題
+  else{
+    state.wrong++; sfx.wrong();
+    state.wrongList.push({q:curQ.q, a:curQ.a, student:ansText});  // 記錄錯題（供結算回顧）
+    updateStats();
+    showSolution(curQ, ansText);   // 答錯 → 顯示正確解法，按「繼續」才換題
+  }
+}
+function showSolution(q, student){
+  solOpen=true;
+  document.getElementById('solSub').textContent='你的答案：'+(student||'（空）');
+  document.getElementById('solEq').innerHTML=renderQ(q.q)+'　⇒　x = '+q.a;
+  document.getElementById('solSteps').innerHTML=q.steps.map(s=>'<li>'+s+'</li>').join('');
+  document.getElementById('solPanel').classList.remove('hidden');
+}
+function hideSolution(){
+  solOpen=false;
+  document.getElementById('solPanel').classList.add('hidden');
+  pickQuestion();
 }
 
 function buyTroop(type){
@@ -1007,7 +1029,7 @@ function loop(t){
   if(!lastT) lastT=t;
   const dt=Math.min(0.05,(t-lastT)/1000); lastT=t; clock+=dt;
   if(SCREEN==='menu'){ menuTick(dt); draw(); }
-  else if(SCREEN==='playing'){ step(dt,false); updateParticles(dt); draw(); }
+  else if(SCREEN==='playing'){ if(!solOpen) step(dt,false); updateParticles(dt); draw(); }
   else { updateParticles(dt); draw(); } // over：粒子繼續淡出
   requestAnimationFrame(loop);
 }
@@ -1028,7 +1050,7 @@ function startGame(){
   initAudio();              // 用戶點「開始」手勢後啟用音效（iPad/iOS 需要）
   particles=[];
   SCREEN='playing';
-  state=newState(); enemyTimer=enemySpawnInterval();
+  state=newState(); state.startTime=Date.now(); enemyTimer=enemySpawnInterval();
   document.getElementById('menu').classList.add('hidden');
   document.getElementById('over').style.display='none';
   document.getElementById('topbar').classList.remove('hidden');
@@ -1044,10 +1066,20 @@ function endGame(win){
   document.getElementById('overTitle').style.color=win?'#ffd166':'#ff6b6b';
   // 答題情況移到結算畫面中，隱藏底部答題欄與統計列
   const total=state.correct+state.wrong, rate=total?Math.round(state.correct/total*100):0;
+  const secs=Math.max(0,Math.round((Date.now()-state.startTime)/1000));
+  const timeStr=(secs>=60)?(Math.floor(secs/60)+' 分 '+(secs%60)+' 秒'):(secs+' 秒');
   document.getElementById('overStats').innerHTML=
     `<span class="ok">答對 <b>${state.correct}</b> 題</span>`+
     `<span class="ng">答錯 <b>${state.wrong}</b> 題</span>`+
-    `<span>答對率 <b>${rate}%</b></span>`;
+    `<span>答對率 <b>${rate}%</b></span>`+
+    `<span>用時 <b>${timeStr}</b></span>`;
+  // 錯題回顧（列出題目、正解與學生所填）
+  const wl=document.getElementById('wrongList');
+  if(state.wrongList.length){
+    wl.classList.remove('hidden');
+    wl.innerHTML='<div class="wl-title">錯題回顧（'+state.wrongList.length+' 題）</div>'+
+      state.wrongList.map(it=>`<div class="wl-item"><span class="wl-q">${renderQ(it.q)}</span><span class="wl-a">正解 x = ${it.a}（你填 ${it.student||'空'}）</span></div>`).join('');
+  } else { wl.classList.add('hidden'); wl.innerHTML=''; }
   document.getElementById('quizBox').classList.add('hidden');
   document.getElementById('topInfo').classList.add('hidden');
   document.getElementById('keyboard').classList.add('hidden');
@@ -1077,6 +1109,7 @@ document.getElementById('btnMenu').addEventListener('click',showMenu);
 document.querySelectorAll('#keyboard .key').forEach(b=>{
   b.addEventListener('click',()=>{ initAudio(); pressKey(b.dataset.k); });
 });
+document.getElementById('solNext').addEventListener('click',hideSolution);
 
 /* ---------- 設定面板 ---------- */
 function openSettings(){
@@ -1099,7 +1132,29 @@ function applySettings(){
   if(DIFF[pendingDiff]) DIFFICULTY=pendingDiff;
   if(!Object.values(pendingEnemyTypes).some(v=>v)) pendingEnemyTypes.pawn=true;  // 保險：至少一種
   enemyTypes={...pendingEnemyTypes};
+  saveSettings();
   closeSettings();
+}
+/* 設定持久化：寫入 localStorage，重新整理網頁後自動還原 */
+function saveSettings(){
+  try{ localStorage.setItem('castle_settings', JSON.stringify({hp:CASTLE_HP, diff:DIFFICULTY, enemyTypes, muted})); }catch(e){}
+}
+function loadSettings(){
+  try{
+    const s=JSON.parse(localStorage.getItem('castle_settings')||'null');
+    if(!s) return;
+    if(typeof s.hp==='number' && s.hp>=10 && s.hp<=999) CASTLE_HP=s.hp;
+    if(DIFF[s.diff]) DIFFICULTY=s.diff;
+    if(s.enemyTypes && typeof s.enemyTypes==='object'){
+      enemyTypes={pawn:!!s.enemyTypes.pawn, archer:!!s.enemyTypes.archer, lancer:!!s.enemyTypes.lancer};
+      if(!Object.values(enemyTypes).some(v=>v)) enemyTypes={pawn:true,archer:true,lancer:true};
+    }
+    if(typeof s.muted==='boolean'){
+      muted=s.muted;
+      const b=document.getElementById('btnMute');
+      if(b){ b.textContent=muted?'🔇':'🔊'; b.title=muted?'取消靜音':'靜音'; }
+    }
+  }catch(e){}
 }
 document.getElementById('btnSet').addEventListener('click',openSettings);
 document.getElementById('setOK').addEventListener('click',applySettings);
@@ -1130,6 +1185,7 @@ document.getElementById('btnMute').addEventListener('click',()=>{
   b.textContent=muted?'🔇':'🔊';
   b.title=muted?'取消靜音':'靜音';
   if(!muted){ initAudio(); sfx.click(); }   // 取消靜音時給一下回饋
+  saveSettings();
 });
 
 /* 任何按鈕點擊都播放音效（首次點擊同時初始化音訊） */
@@ -1155,6 +1211,7 @@ function buildTroopBar(){
 }
 buildTroopBar();
 
+loadSettings();   // 啟動時還原上次設定（城堡血量 / 難度 / 敵軍兵種 / 靜音）
 preload(()=>{ showMenu(); requestAnimationFrame(loop); });
 </script>
 </body>
