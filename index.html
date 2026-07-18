@@ -36,7 +36,7 @@
     display:flex; align-items:stretch; justify-content:center;
     border:none; border-radius:0; box-shadow:none;
   }
-  canvas{display:block; width:100%; height:100%; touch-action:manipulation;}
+  canvas{display:block; width:100%; height:100%; object-fit:contain; touch-action:manipulation;}
 
   /* ---------- 主選單 ---------- */
   .menu{
@@ -955,15 +955,15 @@ function drawMenuScene(){
   if(imgReady('bg_sun')) ctx.drawImage(IM['bg_sun'], sx-95, -3, 190, 190);
   // 4) 雲朵（沿用戰場飄動雲）
   drawClouds();
-  // 5) 遠山（自創剪影）
-  if(imgReady('bg_hills_far')){ const img=IM['bg_hills_far']; ctx.drawImage(img,(W-img.width)/2, gy-205, img.width, 260); }
+  // 5) 遠山（自創剪影，等比縮放）
+  if(imgReady('bg_hills_far')){ const img=IM['bg_hills_far']; const tH=260, tW=img.width*(tH/img.height); ctx.drawImage(img,(W-tW)/2, gy-205, tW, tH); }
   // 6) 草地（全屏下段）
   const gg=ctx.createLinearGradient(0,gy,0,H);
   gg.addColorStop(0,'#3f7d3a'); gg.addColorStop(1,'#244a22');
   ctx.fillStyle=gg; ctx.fillRect(0,gy,W,H-gy);
   ctx.fillStyle='#2c5a28'; ctx.fillRect(0,gy,W,4);            // 地平線接地
-  // 7) 近山（自創緩丘，蓋在草地上方做出層次）
-  if(imgReady('bg_hills_near')){ const img=IM['bg_hills_near']; ctx.drawImage(img,(W-img.width)/2, gy-130, img.width, 175); }
+  // 7) 近山（自創緩丘，等比縮放）
+  if(imgReady('bg_hills_near')){ const img=IM['bg_hills_near']; const tH=175, tW=img.width*(tH/img.height); ctx.drawImage(img,(W-tW)/2, gy-130, tW, tH); }
   // 8) 遠景兩座城堡（藍左紅右，淡淡作為背景）
   drawMenuCastles(gy);
   // 9) 樹木 / 灌木框景（避開中央標題區）
