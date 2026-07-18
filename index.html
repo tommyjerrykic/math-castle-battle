@@ -314,31 +314,53 @@
   .quiz .buy:disabled{filter:grayscale(.75) brightness(.65); cursor:not-allowed; opacity:.7;}
   .stats{display:flex; gap:18px; font-size:14px; color:#9aa6c4; padding:10px 16px; flex-wrap:wrap; justify-content:center; background:#0c1020;}
   .stats b{color:var(--text);}
-  /* 螢幕數字鍵盤（圓形按鈕素材） */
+  /* 螢幕數字鍵盤（木桌控制台風格） */
   .keyboard{
-    flex:1 1 0; min-height:0; padding:14px 10px calc(16px + env(safe-area-inset-bottom));
-    background:linear-gradient(180deg,#141b30,#0a0e18);
-    border-top:3px solid #2a3450;
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;
+    flex:1 1 0; min-height:0; padding:0 10px calc(12px + env(safe-area-inset-bottom));
+    background:
+      linear-gradient(180deg, rgba(12,16,28,.30), rgba(8,10,18,.66)),
+      url(assets/sprites/wood_table.png) center/cover no-repeat;
+    border-top:4px solid #6b4423;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;
   }
-  .kpad{ display:grid; grid-template-columns:repeat(3,78px); gap:12px; justify-content:center; }
+  .kb-header{
+    width:100%; max-width:300px; height:38px; margin-top:6px;
+    background:url(assets/sprites/title_wood.png) center/100% 100% no-repeat;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 3px 7px rgba(0,0,0,.45); border-radius:4px;
+  }
+  .kb-title{ color:#ffe9b8; font-size:19px; font-weight:900; letter-spacing:4px; text-shadow:0 2px 2px rgba(0,0,0,.55); }
+  .kpad{ display:grid; grid-template-columns:repeat(3,78px); gap:13px; justify-content:center; }
   .key{
     width:78px; height:78px; border:none; border-radius:50%;
     background:transparent url(assets/sprites/btn_round_blue.png) center/100% 100% no-repeat;
     color:#fff; font-size:30px; font-weight:900; cursor:pointer;
     display:flex; align-items:center; justify-content:center;
     text-shadow:0 1px 2px rgba(0,0,0,.6);
+    box-shadow:0 5px 0 rgba(0,0,0,.30), inset 0 3px 7px rgba(255,255,255,.22), inset 0 -5px 9px rgba(0,0,0,.38);
     -webkit-tap-highlight-color:transparent; touch-action:manipulation; user-select:none;
+    transition:transform .06s ease, box-shadow .06s ease;
   }
-  .key:active{ background-image:url(assets/sprites/btn_round_blue_press.png); transform:scale(.93); }
+  .key:active{ background-image:url(assets/sprites/btn_round_blue_press.png); transform:translateY(3px); box-shadow:0 2px 0 rgba(0,0,0,.30), inset 0 2px 7px rgba(0,0,0,.42); }
+  .key.op{
+    background:radial-gradient(circle at 50% 32%, #ffe9a6 0%, #f6bd4a 55%, #cc8a22 100%);
+    color:#5a3500; text-shadow:0 1px 1px rgba(255,255,255,.5);
+    box-shadow:0 5px 0 rgba(120,70,10,.45), inset 0 3px 7px rgba(255,255,255,.45), inset 0 -5px 9px rgba(120,70,10,.45);
+  }
+  .key.op:active{ background:radial-gradient(circle at 50% 32%, #f6bd4a 0%, #cc8a22 70%, #a86f15 100%); transform:translateY(3px); box-shadow:0 2px 0 rgba(120,70,10,.45), inset 0 2px 7px rgba(120,70,10,.5); }
   .key.red{ background-image:url(assets/sprites/btn_round_red.png); }
   .key.red:active{ background-image:url(assets/sprites/btn_round_red_press.png); }
   .ksub{ display:flex; justify-content:center; width:100%; }
   .key.submit{
     width:96px; height:96px; font-size:24px; letter-spacing:1px;
     background:transparent url(assets/sprites/btn_round_red_big.png) center/100% 100% no-repeat;
+    animation:ansGlow 1.7s ease-in-out infinite;
   }
-  .key.submit:active{ background-image:url(assets/sprites/btn_round_red_big_press.png); transform:scale(.96); }
+  .key.submit:active{ background-image:url(assets/sprites/btn_round_red_big_press.png); transform:scale(.95); animation:none; box-shadow:0 0 12px 3px rgba(255,120,120,.5); }
+  @keyframes ansGlow{
+    0%,100%{ box-shadow:0 5px 0 rgba(0,0,0,.30), 0 0 0 0 rgba(255,110,110,0); }
+    50%    { box-shadow:0 5px 0 rgba(0,0,0,.30), 0 0 22px 5px rgba(255,110,110,.60); }
+  }
 
   /* 解答面板（答錯時顯示步驟） */
   .sol-eq{font-size:24px; font-weight:900; color:#1a1300; background:#ffe9b0; border:2px solid #b8893f; border-radius:10px; padding:10px 16px; margin:6px 0 14px; text-align:center;}
@@ -639,6 +661,7 @@
 
   <!-- 螢幕數字鍵盤（遊戲中才顯示） -->
   <div class="keyboard hidden" id="keyboard">
+    <div class="kb-header"><div class="kb-title">解題鍵盤</div></div>
     <div class="kpad">
       <button type="button" class="key" data-k="1">1</button>
       <button type="button" class="key" data-k="2">2</button>
@@ -649,7 +672,7 @@
       <button type="button" class="key" data-k="7">7</button>
       <button type="button" class="key" data-k="8">8</button>
       <button type="button" class="key" data-k="9">9</button>
-      <button type="button" class="key" data-k="minus">−</button>
+      <button type="button" class="key op" data-k="minus">−</button>
       <button type="button" class="key" data-k="0">0</button>
       <button type="button" class="key red" data-k="C">C</button>
     </div>
