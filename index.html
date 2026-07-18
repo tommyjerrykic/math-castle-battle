@@ -200,10 +200,10 @@
   .frac .num{border-bottom:1.6px solid currentColor; padding:0 .35em 1px;}
   .frac .den{padding:1px .35em 0;}
 
-  /* ---------- 頂部血條 ---------- */
+  /* ---------- 頂部血條（天空最上方） ---------- */
   .topbar{
-    position:absolute; top:0; left:0; right:0; display:flex; gap:10px;
-    padding:10px 14px; font-size:13px; z-index:2;
+    position:absolute; top:10px; left:0; right:0; display:flex; gap:10px;
+    padding:0 14px; font-size:13px; z-index:2;
   }
   .hpbar{flex:1; height:16px; background:#2a3147; border-radius:8px; overflow:hidden; position:relative;}
   .hpfill{height:100%; transition:width .15s linear;}
@@ -214,7 +214,7 @@
 
   /* 左上角答對/答錯題數 */
   .topleft{
-    position:absolute; top:58px; left:14px; z-index:3;
+    position:absolute; top:62px; left:14px; z-index:3;
     font-size:14px; font-weight:800; color:#e8ecf6;
     background:rgba(10,14,26,.45); border:1px solid rgba(184,145,80,.45);
     border-radius:10px; padding:6px 12px; letter-spacing:.5px;
@@ -250,15 +250,22 @@
   .txtbtn.ghost{background:#37405c; color:#e8ecf6;}
 
   .quiz{
-    position:absolute; top:58px; left:0; right:0;
-    background:rgba(18,22,38,.92); border-bottom:1px solid var(--line);
-    padding:6px 8px 8px; display:flex; flex-direction:column; align-items:center; gap:6px;
-    z-index:3;
+    position:absolute; bottom:5%; left:0; right:0;
+    display:flex; flex-direction:row; align-items:flex-end; justify-content:space-between;
+    padding:0 12px 8px; gap:12px;
+    background:none; border:none;
+    z-index:3; pointer-events:none;
   }
-  .qtext{flex:0 0 auto; font-size:16px; font-weight:700; text-align:center; line-height:1.3; min-height:28px; color:var(--text);}
+  .quiz > *{pointer-events:auto;}
+  .q-left{
+    display:flex; flex-direction:column; align-items:flex-start; gap:6px;
+    background:rgba(18,22,38,.78); border:1px solid rgba(184,145,80,.55);
+    border-radius:12px; padding:8px 12px;
+  }
+  .qtext{font-size:16px; font-weight:700; text-align:left; line-height:1.3; min-height:24px; color:var(--text);}
   .qtext small{display:block; font-size:11px; color:#9aa6c4; font-weight:400; margin-top:2px;}
   .ansbox{
-    min-width:140px; min-height:22px; font-size:20px; padding:5px 12px; border-radius:10px;
+    min-width:130px; min-height:22px; font-size:20px; padding:5px 12px; border-radius:10px;
     border:2px solid var(--line); background:#0e1322; color:var(--gold); text-align:center;
     font-weight:800; letter-spacing:2px;
   }
@@ -266,7 +273,7 @@
   @keyframes shake{ 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
   .quiz button.txtbtn{flex:0 0 auto;}
   .coin-ic{width:20px; height:20px; vertical-align:middle; image-rendering:pixelated;}
-  .quiz .coins{display:flex; align-items:center; font-size:17px; font-weight:800; color:var(--gold); gap:4px; min-width:62px; justify-content:center;}
+  .quiz .coins{display:flex; align-items:center; font-size:16px; font-weight:800; color:var(--gold); gap:4px; min-width:62px; justify-content:flex-start;}
   .quiz .coins .coin-ic{width:22px; height:22px;}
   .quiz .buy{
     background:transparent url(assets/sprites/sword.png) center/contain no-repeat;
@@ -284,14 +291,14 @@
   .quiz .buy:active{transform:scale(0.95); filter:brightness(.92);}
   .quiz .buy:disabled{filter:grayscale(1) brightness(.55); cursor:not-allowed; opacity:.7;}
   .quiz .buy .coin-ic{width:16px; height:16px; margin-left:1px; image-rendering:pixelated;}
-  /* 底部兵種購買列：每個兵種一張圖示當按鈕 */
-  .troopbar{display:flex; gap:6px; flex-wrap:wrap; justify-content:center; align-items:center; flex:1 1 100%; order:3;}
+  /* 右側出兵按鈕：直向排列在草地中 */
+  .troopbar{display:flex; flex-direction:column; gap:6px; flex-wrap:nowrap; justify-content:flex-end; align-items:flex-end; flex:0 0 auto; width:124px;}
   .troopbtn{
     background:transparent url(assets/sprites/sword.png) center/contain no-repeat;
     border:none; border-radius:0;
     color:#1a1300; text-shadow:0 1px 0 rgba(255,255,255,.7),0 1px 2px rgba(255,255,255,.6);
-    padding:0 8px 0 50px; min-width:0;
-    width:120px; height:40px;
+    padding:0 8px 0 46px; min-width:0;
+    width:124px; height:42px;
     display:inline-flex; align-items:center; justify-content:flex-start;
     font-size:11px; font-weight:900; cursor:pointer;
     box-shadow:none; flex:0 0 auto;
@@ -423,11 +430,13 @@
     <!-- 左上角：答對 / 答錯題數（遊戲中才顯示） -->
     <div class="topleft hidden" id="topInfo">答對 <b id="correct">0</b> 題 · 答錯 <b id="wrong">0</b> 題</div>
 
-    <!-- 答題區（遊戲中才顯示）：題目 / 答案 / 金幣 / 買兵，浮於戰場上方、血量條下方 -->
+    <!-- 答題區（遊戲中才顯示）：題目/答案放左側草地，出兵按鈕放右側草地 -->
     <div class="quiz hidden" id="quizBox">
-      <div class="qtext"><span id="qText">準備開始…</span></div>
-      <div class="ansbox" id="ans"> </div>
-      <div class="coins"><img class="coin-ic" src="assets/sprites/coin.png" alt=""><b id="coins">0</b></div>
+      <div class="q-left">
+        <div class="qtext"><span id="qText">準備開始…</span></div>
+        <div class="ansbox" id="ans"> </div>
+        <div class="coins"><img class="coin-ic" src="assets/sprites/coin.png" alt=""><b id="coins">0</b></div>
+      </div>
       <div class="troopbar" id="troopbar"></div>
     </div>
 
