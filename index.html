@@ -314,21 +314,27 @@
   .quiz .buy:disabled{filter:grayscale(.75) brightness(.65); cursor:not-allowed; opacity:.7;}
   .stats{display:flex; gap:18px; font-size:14px; color:#9aa6c4; padding:10px 16px; flex-wrap:wrap; justify-content:center; background:#0c1020;}
   .stats b{color:var(--text);}
-  /* 螢幕數字鍵盤（按鈕保留原始素材，僅美化背景） */
+  /* 螢幕數字鍵盤（按鈕保留原始素材，背景為中世纪城堡石牆） */
   .keyboard{
     flex:1 1 0; min-height:0; padding:0 10px calc(12px + env(safe-area-inset-bottom));
     background:
-      radial-gradient(ellipse at 50% 0%, rgba(255,238,205,.18), transparent 60%),
-      linear-gradient(180deg, rgba(12,9,5,.08), rgba(0,0,0,.45)),
-      repeating-linear-gradient(90deg, rgba(0,0,0,.15) 0, rgba(0,0,0,.15) 2px, transparent 2px, transparent 16px),
-      repeating-linear-gradient(0deg,
-        #a9743f 0, #a9743f 26px,
-        #94612f 26px, #94612f 52px,
-        #b07e48 52px, #b07e48 78px,
-        #855628 78px, #855628 104px);
-    background-size:100% 100%, 100% 100%, 100% 100%, 100% 104px;
-    border-top:4px solid #5e3c1c;
-    box-shadow:inset 0 0 70px rgba(0,0,0,.42);
+      /* 頂部火把暖光 */
+      radial-gradient(ellipse 75% 45% at 50% -6%, rgba(255,201,128,.30), transparent 62%),
+      /* 四角暗角，強化石牆立體感 */
+      radial-gradient(ellipse 120% 90% at 50% 50%, transparent 52%, rgba(0,0,0,.55) 100%),
+      /* 横向磚縫 */
+      repeating-linear-gradient(0deg, transparent 0 40px, rgba(14,9,5,.62) 40px 44px),
+      /* 直向磚縫 */
+      repeating-linear-gradient(90deg, transparent 0 60px, rgba(14,9,5,.62) 60px 64px),
+      /* 每行頂部高光（石塊立體邊緣） */
+      repeating-linear-gradient(0deg, rgba(255,244,222,.12) 0 3px, transparent 3px 44px),
+      /* 細微石面紋理 */
+      repeating-linear-gradient(118deg, rgba(0,0,0,.05) 0 7px, transparent 7px 15px),
+      /* 石材底色（暖灰，上方亮下方沉） */
+      linear-gradient(180deg, #776c5d 0%, #5c5142 48%, #443a30 100%);
+    background-size:100% 100%, 100% 100%, 100% 44px, 64px 100%, 100% 44px, 15px 15px, 100% 100%;
+    border-top:4px solid #2f2720;
+    box-shadow:inset 0 0 60px rgba(0,0,0,.5), inset 0 3px 0 rgba(255,240,210,.10);
     display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;
   }
   .kb-header{
