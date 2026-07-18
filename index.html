@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0b0e18">
+<title>城堡大戰</title>
+<style>
+  :root{
+    --bg:#0f1320; --panel:#1a2034; --line:#2c3450;
+    --player:#4ea1ff; --enemy:#ff6b6b; --gold:#ffd166; --text:#e8ecf6;
+    --wood:#5a3d24; --wood2:#7a5230; --paper:#f2e6c9;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    margin:0; font-family:"Segoe UI","Microsoft JhengHei",sans-serif;
+    background:radial-gradient(circle at 50% 0%,#1b2238,#0b0e18);
+    color:var(--text);
+    min-height:100vh; min-height:100dvh;
+    overflow:hidden; overscroll-behavior:none;
+    -webkit-user-select:none; user-select:none;
+    -webkit-touch-callout:none;
+    display:flex; justify-content:center; align-items:stretch;
+  }
+  .wrap{
+    width:100%; max-width:none; height:100vh; height:100dvh;
+    display:flex; flex-direction:column;
+  }
+  .stage{
+    position:relative; flex:1 1 0; width:100%; min-height:0;
+    padding-top:265px;                /* 預留頂部給題目/出兵浮層，戰場完整顯示在其下方 */
+    overflow:hidden; background:#0c1020;
+    display:flex; align-items:center; justify-content:center;
+    border:none; border-radius:0; box-shadow:none;
+  }
+  canvas{display:block; width:100%; height:auto; max-height:100%; touch-action:manipulation;}
+
+  /* ---------- 主選單 ---------- */
+  .menu{
+    position:absolute; inset:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:22px; z-index:6;
+    background:radial-gradient(ellipse at 50% 38%,rgba(10,14,26,.22),rgba(6,8,16,.74));
+    text-align:center; padding:20px;
+  }
+  .menu-title{
+    position:relative; display:inline-flex; align-items:center; justify-content:center;
+    padding:48px 60px;
+    background-color:#82564e;                                   /* 木棕墊底（現 bigbar 已全不透明，正常不會露出） */
+    background-image:url(assets/sprites/bigbar.png);
+    background-size:150% 150%;                                 /* 木紋放大（中間更粗），居中鋪滿 */
+    background-position:center;
+    background-repeat:no-repeat;
+    border:4px solid #3e2a1a; border-radius:10px;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.25),
+      inset 0 -3px 8px rgba(0,0,0,.35),
+      0 6px 0 #3e2a1a, 0 10px 22px rgba(0,0,0,.55);
+  }
+  .menu-title::before, .menu-title::after{
+    content:''; position:absolute; top:50%; width:14px; height:14px; border-radius:50%;
+    background:radial-gradient(circle at 30% 30%, #fff4d6, #d4a868 40%, #5a3d24 90%);
+    border:2px solid #5a3d24; transform:translateY(-50%);
+  }
+  .menu-title::before{left:10px;}
+  .menu-title::after{right:10px;}
+  .menu-title .tt{
+    font-size:clamp(26px,4.4vw,44px); font-weight:900; color:#fff4d6;
+    text-shadow:0 2px 0 #5a3d24, 0 4px 6px rgba(0,0,0,.45);
+    letter-spacing:2px; line-height:1.15; white-space:nowrap;
+  }
+  .menu-title .tt small{display:block; font-size:.42em; color:#fff7e6; letter-spacing:1px; margin-top:5px; font-weight:700;}
+  .btnrow{display:flex; flex-direction:column; gap:16px; align-items:center; justify-content:center; margin-top:18px;}
+  .gbtn{
+    position:relative; border:none; cursor:pointer; padding:16px 30px;
+    font-size:18px; font-weight:900; color:#fff; letter-spacing:2px;
+    border-radius:12px; min-width:170px; width:min(320px,80vw); min-height:54px;
+    background-color:transparent;
+    background-image:url(assets/sprites/bigbar.png);
+    background-size:100% 100%; background-repeat:no-repeat; background-position:center;
+    text-shadow:0 2px 0 rgba(0,0,0,.45);
+    box-shadow:0 6px 0 #2a1d12, 0 8px 16px rgba(0,0,0,.4);
+    transition:transform .08s ease, box-shadow .08s ease;
+    touch-action:manipulation;
+  }
+  .gbtn.start,.gbtn.info,.gbtn.quit{ color:#fff; text-shadow:0 2px 0 rgba(0,0,0,.45); }
+  .gbtn:hover{transform:translateY(-2px); box-shadow:0 8px 0 #2a1d12, 0 12px 20px rgba(0,0,0,.4);}
+  .gbtn:active{transform:translateY(4px); box-shadow:0 2px 0 #2a1d12, 0 4px 8px rgba(0,0,0,.35);}
+  .gbtn .lbl{position:relative; z-index:1; pointer-events:none;}
+
+  /* 右上角小鈕（設定 / 靜音）：使用 Tiny Swords 的藍色方鈕背景圖，拉長填滿 */
+  .topright{
+    position:absolute; top:14px; right:14px; z-index:7;
+    display:flex; gap:10px;
+  }
+  .cornerbtn{
+    background-color:transparent;
+    background-image:url(assets/sprites/btn_sq.png);
+    background-size:100% 100%; background-repeat:no-repeat; background-position:center;
+    border:none; border-radius:20px; padding:12px 14px; min-width:46px; text-align:center;
+    color:#fff; font-size:20px; font-weight:800; cursor:pointer; letter-spacing:0;
+    text-shadow:0 1px 2px rgba(0,0,0,.7);
+    transition:transform .08s ease, filter .08s ease;
+    touch-action:manipulation;
+  }
+  .cornerbtn:active{
+    background-color:transparent;
+    background-image:url(assets/sprites/btn_sq_press.png);
+    transform:translateY(2px); filter:brightness(.95);
+  }
+
+  /* 設定 / 說明 面板（羊皮紙 + 厚木框 + 木牌標題，配合戰場主題） */
+  .overlay{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    background:radial-gradient(ellipse at 50% 42%, rgba(28,20,10,.55), rgba(6,8,16,.9));
+    z-index:8; padding:18px;
+  }
+  .panel{
+    position:relative;
+    background:linear-gradient(180deg,#f5ead0 0%,#ecd9ad 100%);
+    border:7px solid #5a3d24; border-radius:18px;
+    padding:30px 30px 26px;
+    min-width:300px; max-width:560px; width:100%;
+    color:#3a2c14;
+    box-shadow:
+      0 18px 45px rgba(0,0,0,.6),
+      inset 0 0 0 2px rgba(255,248,225,.35),
+      inset 0 0 50px rgba(140,95,40,.22);
+    max-height:88%; overflow:auto; text-align:center;
+  }
+  .panel h3{
+    display:block; width:fit-content; margin:0 auto 16px;
+    background:linear-gradient(180deg,#d4a868 0%,#b58240 55%,#8f5e2d 100%);
+    border:3px solid #5a3d24; border-radius:10px;
+    padding:10px 30px;
+    font-size:21px; font-weight:900; color:#fff4d6; letter-spacing:3px;
+    text-shadow:0 2px 0 #5a3d24, 0 3px 5px rgba(0,0,0,.4);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.35), 0 4px 0 #3e2a1a, 0 6px 12px rgba(0,0,0,.4);
+  }
+  .panel-sub{font-size:12.5px; color:#7a5a2e; margin:-8px 0 16px; font-weight:600;}
+  /* 遊戲說明：使用 Tiny Swords 的 SpecialPaper（9 塊拼合、調成羊皮紙色）作為背景 */
+  .panel.help{
+    background-image:url(assets/sprites/special_paper.png);
+    background-size:100% 100%; background-position:center; background-repeat:no-repeat;
+    background-color:#e9d6ad;            /* 拉伸接縫處的兜底色 */
+    border-color:#5a3d24;
+    box-shadow:0 18px 45px rgba(0,0,0,.6), inset 0 0 0 2px rgba(255,248,225,.35);
+    padding:30px 52px 28px;             /* 加大內邊距，文字明顯內收、不碰白邊 */
+  }
+  .setrow{
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    margin:0 0 14px; padding:13px 18px;
+    background:rgba(255,255,255,.4);
+    border:1.5px solid #b89150; border-radius:12px;
+    font-size:15px; font-weight:600; color:#3a2c14;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.5);
+  }
+  .setrow input{
+    width:104px; font-size:18px; font-weight:700; padding:9px; border-radius:9px;
+    border:2px solid #8a5a2a; background:#fff8e8; color:#3a2c14; text-align:center;
+  }
+  /* 設定面板：敵軍可出兵種勾選 */
+  .troopopts{display:inline-flex; gap:16px; flex-wrap:wrap; align-items:center;}
+  .troopopts label{display:inline-flex; align-items:center; gap:6px; font-size:14px; font-weight:700; color:#3a2c14; cursor:pointer;}
+  .troopopts input{width:18px; height:18px; accent-color:#7a4a1e; cursor:pointer;}
+  .seg{display:inline-flex; border:2px solid #8a5a2a; border-radius:9px; overflow:hidden; background:rgba(0,0,0,.06);}
+  .seg button{
+    border:none; background:transparent; color:#6b4f2a; font-weight:800; font-size:14px;
+    padding:8px 14px; cursor:pointer; touch-action:manipulation; transition:background .1s;
+  }
+  .seg button + button{border-left:1px solid #b89150;}
+  .seg button.active{ background:linear-gradient(180deg,#9a6a2e,#7a4a1e); color:#fff4d6; }
+  .panel .row{display:flex; gap:14px; justify-content:center; margin-top:18px; flex-wrap:wrap;}
+  .panel .txtbtn{
+    background:linear-gradient(180deg,#caa24a 0%,#b0822f 60%,#8a6420 100%);
+    color:#fff4d6; border:2px solid #5a3d24;
+    box-shadow:0 4px 0 #3e2a1a, 0 6px 12px rgba(0,0,0,.35);
+    text-shadow:0 1px 0 #5a3d24;
+  }
+  .panel .txtbtn:active{transform:translateY(3px); box-shadow:0 1px 0 #3e2a1a;}
+  .panel .txtbtn.ghost{background:#9a7a4a; color:#fff; border-color:#5a3d24;}
+
+  /* 遊戲說明內文 */
+  .help-body{font-size:15px; line-height:1.7; color:#3a2c14; text-align:left; padding:0 8px;}
+  .help-body h4{
+    margin:18px 0 8px; font-size:16.5px; color:#6b4423; font-weight:800;
+    border-bottom:2px solid #b89150; padding-bottom:6px;
+    display:flex; align-items:center; gap:7px;
+  }
+  .help-body h4:first-child{margin-top:2px;}
+  .help-body p{margin:8px 0;}
+  .help-body ul{margin:6px 0; padding-left:22px;}
+  .help-body li{margin:6px 0;}
+
+  /* 上下分數 */
+  .frac{display:inline-flex; flex-direction:column; text-align:center; vertical-align:middle; margin:0 .12em; line-height:1; font-size:.72em;}
+  .frac .num{border-bottom:1.6px solid currentColor; padding:0 .35em 1px;}
+  .frac .den{padding:1px .35em 0;}
+
+  /* ---------- 頂部血條 ---------- */
+  .topbar{
+    position:absolute; top:0; left:0; right:0; display:flex; gap:10px;
+    padding:10px 14px; font-size:13px; z-index:2;
+  }
+  .hpbar{flex:1; height:16px; background:#2a3147; border-radius:8px; overflow:hidden; position:relative;}
+  .hpfill{height:100%; transition:width .15s linear;}
+  .hpfill.p{background:linear-gradient(90deg,#3d8bff,#7bc0ff);}
+  .hpfill.e{background:linear-gradient(90deg,#ff5252,#ff9a9a);}
+  .hplabel{position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-size:11px; font-weight:700; text-shadow:0 1px 2px #000;}
+
+  /* 左上角答對/答錯題數 */
+  .topleft{
+    position:absolute; top:58px; left:14px; z-index:3;
+    font-size:14px; font-weight:800; color:#e8ecf6;
+    background:rgba(10,14,26,.45); border:1px solid rgba(184,145,80,.45);
+    border-radius:10px; padding:6px 12px; letter-spacing:.5px;
+    pointer-events:none;
+  }
+  .topleft b{font-size:15px;}
+  .topleft #correct{color:#9be29b;}
+  .topleft #wrong{color:#ff9a9a;}
+
+  /* ---------- 結算 ---------- */
+  .banner{
+    position:absolute; inset:0; display:none; flex-direction:column; gap:16px;
+    align-items:center; justify-content:center; background:rgba(8,10,20,.82);
+    text-align:center; z-index:5;
+  }
+  .banner h2{font-size:34px; margin:0;}
+  .banner .row{display:flex; gap:18px; flex-wrap:wrap; justify-content:center;}
+  .over-stats{
+    display:flex; gap:14px; flex-wrap:wrap; justify-content:center;
+    color:#f3e7c8; font-size:17px; font-weight:700;
+    background:rgba(0,0,0,.28); border:1px solid rgba(184,145,80,.5);
+    border-radius:12px; padding:12px 22px;
+  }
+  .over-stats span{white-space:nowrap;}
+  .over-stats b{color:#ffd166; font-size:20px; padding:0 2px;}
+  .over-stats .ok{color:#9be29b;}
+  .over-stats .ng{color:#ff9a9a;}
+  .txtbtn{
+    background:var(--gold); color:#1a1300; border:none; padding:13px 24px;
+    font-size:16px; font-weight:800; border-radius:11px; cursor:pointer;
+    touch-action:manipulation; min-height:48px;
+  }
+  .txtbtn.ghost{background:#37405c; color:#e8ecf6;}
+
+  .quiz{
+    position:absolute; top:58px; left:0; right:0;
+    background:rgba(18,22,38,.92); border-bottom:1px solid var(--line);
+    padding:6px 8px 8px; display:flex; flex-direction:column; align-items:center; gap:6px;
+    z-index:3;
+  }
+  .qtext{flex:0 0 auto; font-size:16px; font-weight:700; text-align:center; line-height:1.3; min-height:28px; color:var(--text);}
+  .qtext small{display:block; font-size:11px; color:#9aa6c4; font-weight:400; margin-top:2px;}
+  .ansbox{
+    min-width:140px; min-height:22px; font-size:20px; padding:5px 12px; border-radius:10px;
+    border:2px solid var(--line); background:#0e1322; color:var(--gold); text-align:center;
+    font-weight:800; letter-spacing:2px;
+  }
+  .ansbox.flash{ border-color:#ff5252; animation:shake .3s; }
+  @keyframes shake{ 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
+  .quiz button.txtbtn{flex:0 0 auto;}
+  .coin-ic{width:20px; height:20px; vertical-align:middle; image-rendering:pixelated;}
+  .quiz .coins{display:flex; align-items:center; font-size:17px; font-weight:800; color:var(--gold); gap:4px; min-width:62px; justify-content:center;}
+  .quiz .coins .coin-ic{width:22px; height:22px;}
+  .quiz .buy{
+    background:transparent url(assets/sprites/sword.png) center/contain no-repeat;
+    border:none; border-radius:0;
+    color:#1a1300; text-shadow:0 1px 0 rgba(255,255,255,.65),0 1px 2px rgba(255,255,255,.55);
+    padding:0 8px 0 62px; min-width:0;
+    width:146px; height:52px;
+    display:inline-flex; align-items:center; justify-content:flex-start; gap:3px;
+    font-size:13px; font-weight:900; cursor:pointer;
+    box-shadow:none; flex:0 0 auto;
+    transition:transform .08s ease, filter .08s ease;
+    touch-action:manipulation;
+  }
+  .quiz .buy:hover{transform:scale(1.05); filter:brightness(1.08) drop-shadow(0 4px 6px rgba(0,0,0,.35));}
+  .quiz .buy:active{transform:scale(0.95); filter:brightness(.92);}
+  .quiz .buy:disabled{filter:grayscale(1) brightness(.55); cursor:not-allowed; opacity:.7;}
+  .quiz .buy .coin-ic{width:16px; height:16px; margin-left:1px; image-rendering:pixelated;}
+  /* 底部兵種購買列：每個兵種一張圖示當按鈕 */
+  .troopbar{display:flex; gap:6px; flex-wrap:wrap; justify-content:center; align-items:center; flex:1 1 100%; order:3;}
+  .troopbtn{
+    background:transparent url(assets/sprites/sword.png) center/contain no-repeat;
+    border:none; border-radius:0;
+    color:#1a1300; text-shadow:0 1px 0 rgba(255,255,255,.7),0 1px 2px rgba(255,255,255,.6);
+    padding:0 8px 0 50px; min-width:0;
+    width:120px; height:40px;
+    display:inline-flex; align-items:center; justify-content:flex-start;
+    font-size:11px; font-weight:900; cursor:pointer;
+    box-shadow:none; flex:0 0 auto;
+    transition:transform .08s ease, filter .08s ease;
+    touch-action:manipulation;
+  }
+  /* 文字容器落在劍刃上（劍柄在左側，用 padding-left 推開） */
+  .troopbtn .tlabel{display:inline-flex; align-items:center; gap:3px; white-space:nowrap;}
+  .troopbtn:hover{transform:scale(1.05); filter:brightness(1.08) drop-shadow(0 4px 6px rgba(0,0,0,.35));}
+  .troopbtn:active{transform:scale(0.95); filter:brightness(.92);}
+  .troopbtn:disabled{filter:grayscale(1) brightness(.55); cursor:not-allowed; opacity:.7;}
+  .troopbtn .coin-ic{width:16px; height:16px; margin-left:1px; image-rendering:pixelated;}
+  .quiz .buy:disabled{filter:grayscale(.75) brightness(.65); cursor:not-allowed; opacity:.7;}
+  .stats{display:flex; gap:18px; font-size:14px; color:#9aa6c4; padding:10px 16px; flex-wrap:wrap; justify-content:center; background:#0c1020;}
+  .stats b{color:var(--text);}
+  /* 螢幕數字鍵盤（圓形按鈕素材） */
+  .keyboard{
+    flex:0 0 auto; padding:10px 10px calc(12px + env(safe-area-inset-bottom));
+    background:linear-gradient(180deg,#141b30,#0a0e18);
+    border-top:3px solid #2a3450;
+    display:flex; flex-direction:column; align-items:center; gap:10px;
+  }
+  .kpad{ display:grid; grid-template-columns:repeat(3,56px); gap:7px; justify-content:center; }
+  .key{
+    width:56px; height:56px; border:none; border-radius:50%;
+    background:transparent url(assets/sprites/btn_round_blue.png) center/100% 100% no-repeat;
+    color:#fff; font-size:21px; font-weight:900; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    text-shadow:0 1px 2px rgba(0,0,0,.6);
+    -webkit-tap-highlight-color:transparent; touch-action:manipulation; user-select:none;
+  }
+  .key:active{ background-image:url(assets/sprites/btn_round_blue_press.png); transform:scale(.93); }
+  .key.red{ background-image:url(assets/sprites/btn_round_red.png); }
+  .key.red:active{ background-image:url(assets/sprites/btn_round_red_press.png); }
+  .ksub{ display:flex; justify-content:center; width:100%; }
+  .key.submit{
+    width:72px; height:72px; font-size:19px; letter-spacing:1px;
+    background:transparent url(assets/sprites/btn_round_red_big.png) center/100% 100% no-repeat;
+  }
+  .key.submit:active{ background-image:url(assets/sprites/btn_round_red_big_press.png); transform:scale(.96); }
+
+  .hidden{display:none !important;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="stage">
+    <canvas id="cv" width="900" height="560"></canvas>
+
+    <!-- 主選單 -->
+    <div class="menu" id="menu">
+      <div class="topright">
+        <button class="cornerbtn" id="btnMute" title="靜音">🔊</button>
+        <button class="cornerbtn" id="btnSet" title="設定">⚙</button>
+      </div>
+      <div class="menu-title"><div class="tt">城堡大戰<small>一元一次方程練習</small></div></div>
+      <div class="btnrow">
+        <button class="gbtn start" id="btnStart"><span class="lbl">開始遊戲</span></button>
+        <button class="gbtn info" id="btnHelp"><span class="lbl">遊戲說明</span></button>
+        <button class="gbtn quit" id="btnQuit"><span class="lbl">退出遊戲</span></button>
+      </div>
+    </div>
+
+    <!-- 設定面板 -->
+    <div class="overlay hidden" id="settings">
+      <div class="panel">
+        <h3>遊戲設定</h3>
+        <div class="panel-sub">⚔️ 調整後將於下一局生效 · 難度越高敵軍出兵越密且不規律</div>
+        <div class="setrow"><span>城堡血量</span><input id="setHP" type="number" min="10" max="999" step="10" value="100"></div>
+        <div class="setrow"><span>難度</span>
+          <div class="seg" id="setDiff">
+            <button type="button" data-d="easy">簡單</button>
+            <button type="button" data-d="normal">普通</button>
+            <button type="button" data-d="hard">困難</button>
+          </div>
+        </div>
+        <div class="setrow"><span>敵軍兵種<small style="font-weight:600;color:#7a5a2e;display:block;font-size:11px;margin-top:2px;">至少保留一種</small></span>
+          <div class="troopopts" id="setEnemyTypes">
+            <label><input type="checkbox" data-t="pawn" checked> 步兵</label>
+            <label><input type="checkbox" data-t="archer" checked> 弓箭手</label>
+            <label><input type="checkbox" data-t="lancer" checked> 槍兵</label>
+          </div>
+        </div>
+        <div class="row">
+          <button class="txtbtn" id="setOK">確定</button>
+          <button class="txtbtn ghost" id="setCancel">取消</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 遊戲說明面板 -->
+    <div class="overlay hidden" id="help">
+      <div class="panel help">
+        <h3>遊戲說明</h3>
+        <div class="panel-sub">📜 解一元一次方程 · 專用教材</div>
+        <div class="help-body">
+          <h4>🏰 目標</h4>
+          <p>答對一元一次方程，派藍軍攻陷紅城即勝；守住我方城堡不被攻破。</p>
+          <h4>⚔️ 玩法</h4>
+          <ul>
+            <li>用下方螢幕鍵盤輸入答案，按「答題」送出。</li>
+            <li>答對出兵，答錯可再試一次。</li>
+            <li>敵城按設定間隔自動出兵，兩軍於中路廝殺。</li>
+          </ul>
+          <h4>🪞 兵種相剋</h4>
+          <ul>
+            <li>步兵 剋 弓箭手：弓打步傷害 ×0.5</li>
+            <li>弓箭手 剋 槍兵：遠程優勢</li>
+            <li>槍兵 剋 步兵：槍打步傷害 ×1.5</li>
+          </ul>
+          <h4>🏆 勝負</h4>
+          <ul>
+            <li>敵城血空 → 勝利 🎉</li>
+            <li>我城血空 → 失敗 💥</li>
+          </ul>
+        </div>
+        <div class="row">
+          <button class="txtbtn" id="helpClose">知道了</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 頂部血條（遊戲中才顯示） -->
+    <div class="topbar hidden" id="topbar">
+      <div class="hpbar"><div class="hpfill p" id="hpP" style="width:100%"></div><div class="hplabel" id="hpPt">我方城堡 100</div></div>
+      <div class="hpbar"><div class="hpfill e" id="hpE" style="width:100%"></div><div class="hplabel" id="hpEt">敵方城堡 100</div></div>
+    </div>
+
+    <!-- 左上角：答對 / 答錯題數（遊戲中才顯示） -->
+    <div class="topleft hidden" id="topInfo">答對 <b id="correct">0</b> 題 · 答錯 <b id="wrong">0</b> 題</div>
+
+    <!-- 答題區（遊戲中才顯示）：題目 / 答案 / 金幣 / 買兵，浮於戰場上方、血量條下方 -->
+    <div class="quiz hidden" id="quizBox">
+      <div class="qtext"><span id="qText">準備開始…</span></div>
+      <div class="ansbox" id="ans"> </div>
+      <div class="coins"><img class="coin-ic" src="assets/sprites/coin.png" alt=""><b id="coins">0</b></div>
+      <div class="troopbar" id="troopbar"></div>
+    </div>
+
+    <!-- 結算 -->
+    <div class="banner" id="over">
+      <h2 id="overTitle"></h2>
+      <div class="over-stats" id="overStats"></div>
+      <div class="row">
+        <button class="txtbtn" id="btnAgain">再玩一次</button>
+        <button class="txtbtn ghost" id="btnMenu">返回主選單</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 螢幕數字鍵盤（遊戲中才顯示） -->
+  <div class="keyboard hidden" id="keyboard">
+    <div class="kpad">
+      <button type="button" class="key" data-k="1">1</button>
+      <button type="button" class="key" data-k="2">2</button>
+      <button type="button" class="key" data-k="3">3</button>
+      <button type="button" class="key" data-k="4">4</button>
+      <button type="button" class="key" data-k="5">5</button>
+      <button type="button" class="key" data-k="6">6</button>
+      <button type="button" class="key" data-k="7">7</button>
+      <button type="button" class="key" data-k="8">8</button>
+      <button type="button" class="key" data-k="9">9</button>
+      <button type="button" class="key" data-k="minus">−</button>
+      <button type="button" class="key" data-k="0">0</button>
+      <button type="button" class="key red" data-k="C">C</button>
+    </div>
+    <div class="ksub">
+      <button type="button" class="key submit" data-k="OK">答題 ✓</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===================== 可編輯設定區 ===================== */
+const QUESTIONS = [
+  {q:"x + 5 = 12", a:7},
+  {q:"x − 3 = 9", a:12},
+  {q:"2x = 14", a:7},
+  {q:"3x = 21", a:7},
+  {q:"2x + 4 = 14", a:5},
+  {q:"5x − 2 = 18", a:4},
+  {q:"3x + 1 = 10", a:3},
+  {q:"4x − 7 = 9", a:4},
+  {q:"x ÷ 2 = 6", a:12},
+  {q:"x / 3 = 4", a:12},
+  {q:"2x + 3 = x + 8", a:5},
+  {q:"5x = 3x + 14", a:7},
+  {q:"2(x + 1) = 10", a:4},
+  {q:"3(x − 2) = 9", a:5},
+  {q:"2x + 5 = 3x − 1", a:6},
+  {q:"4x − 3 = 2x + 7", a:5},
+  {q:"6x + 2 = 4x + 10", a:4},
+  {q:"7 − 2x = 1", a:3},
+  {q:"3x + 2 = 2x + 9", a:7},
+  {q:"x / 4 + 3 = 5", a:8},
+  {q:"x + 8 = 3", a:-5},
+  {q:"x − 5 = −2", a:3},
+  {q:"2x = −10", a:-5},
+  {q:"−3x = 12", a:-4},
+  {q:"3x = −15", a:-5},
+  {q:"x ÷ 2 = −4", a:-8},
+  {q:"5x + 3 = −12", a:-3},
+  {q:"2x − 7 = −13", a:-3},
+  {q:"4x + 5 = −11", a:-4},
+  {q:"−2x + 6 = 14", a:-4},
+  {q:"3x − 4 = −13", a:-3},
+  {q:"6x = −18", a:-3},
+  {q:"x + 10 = 4", a:-6},
+  {q:"7x + 2 = −19", a:-3},
+  {q:"−x = 9", a:-9},
+  {q:"−x = −5", a:5},
+  {q:"2x + 9 = 1", a:-4},
+  {q:"5x − 8 = −23", a:-3},
+  {q:"3(x + 2) = −9", a:-5},
+  {q:"2(x − 3) = −10", a:-2},
+  {q:"4(x + 1) = 12", a:2},
+  {q:"−3x + 5 = 14", a:-3},
+  {q:"8 − 3x = 2", a:2},
+  {q:"10 − 4x = 2", a:2},
+  {q:"2x + 1 = 3x − 4", a:5},
+  {q:"5x − 3 = 2x + 6", a:3},
+  {q:"7x + 4 = 4x − 5", a:-3},
+  {q:"x / 2 + 5 = 2", a:-6},
+  {q:"x / 3 − 2 = −4", a:-6},
+  {q:"2x + 3 = −x + 9", a:2},
+];
+
+let CASTLE_HP   = 100;
+const UNIT_HP     = 35;
+const UNIT_ATK    = 6;
+const UNIT_SPEED  = 32;
+const ATTACK_CD   = 0.9;
+const CASTLE_DMG  = 8;
+
+/* ===================== 兵種設定（我方可花金幣購買） =====================
+   每個兵種有不同的血量/攻擊/速度/價格與外觀；enemy（紅方）固定用 UNIT_* 數值。 */
+const TROOPS = {
+  pawn:    { label:'步兵',   cost:3, hp:80,  atk:6,  speed:32, cd:0.9, draw:60,
+             anim:{idle:8, run:6, atk:8}, sheets:{idle:'p_idle', run:'p_run', atk:'blue_atk'} },
+  archer:  { label:'弓箭手', cost:4, hp:55,  atk:9,  speed:40, cd:1.0, draw:58,
+             ranged:true, range:170, projSpeed:360,
+             anim:{idle:6, run:4, atk:8}, sheets:{idle:'archer_idle', run:'archer_run', atk:'archer_atk'} },
+  lancer:  { label:'槍兵',   cost:5, hp:130, atk:7,  speed:28, cd:1.0, draw:60,
+             anim:{idle:12, run:6, atk:3}, sheets:{idle:'lancer_idle', run:'lancer_run', atk:'lancer_atk'} },
+};
+const TROOP_ORDER = ['pawn','archer','lancer'];
+
+/* 兵種相剋（攻擊者兵種 → 防禦者兵種 → 傷害乘數）
+   步兵克弓箭手：弓箭手打步兵傷害減免（×0.5）
+   槍兵克步兵  ：槍兵打步兵傷害加強（×1.5）
+   弓箭手克槍兵：遠程本就有優勢，不需額外加成 → 1.0
+   其餘組合皆為 1.0 */
+const COUNTER = {
+  archer: { pawn:0.5 },   // 弓箭手 → 步兵：減傷（步兵剋弓箭手）
+  lancer: { pawn:1.5 },   // 槍兵   → 步兵：加傷（槍兵剋步兵）
+};
+function dmgMult(att, def){
+  const m = COUNTER[att] && COUNTER[att][def];
+  return (m===undefined) ? 1 : m;
+}
+
+/* 小兵繪製尺寸（藍/紅通用），定義在前，供下方 RED_TROOPS 參照 */
+const UNIT_DRAW = 66;
+
+/* 紅方（敵軍）兵種表：數值沿用 TROOPS，只換紅色 sprite 與動畫幀數 */
+const RED_TROOPS = {
+  pawn:   { anim:{idle:8, run:6, atk:8},    sheets:{idle:'e_idle',       run:'e_run',       atk:'e_atk'},       draw:UNIT_DRAW },
+  archer: { anim:{idle:6, run:4, atk:8},    sheets:{idle:'red_archer_idle', run:'red_archer_run', atk:'red_archer_atk'}, draw:58 },
+  lancer: { anim:{idle:12, run:6, atk:3},   sheets:{idle:'red_lancer_idle', run:'red_lancer_run', atk:'red_lancer_atk'}, draw:60 },
+};
+
+/* 難度設定：決定敵軍（右方）出兵頻率，並加入隨機使出兵不規律 */
+const DIFF = {
+  easy:   { label:'簡單', base:9.0, jitter:3.0 },  // 約 6.0 ~ 12.0 秒
+  normal: { label:'普通', base:6.5, jitter:2.5 },  // 約 4.0 ~ 9.0 秒
+  hard:   { label:'困難', base:4.5, jitter:2.0 },  // 約 2.5 ~ 6.5 秒
+};
+let DIFFICULTY = 'normal';
+let pendingDiff = DIFFICULTY;   // 設定面板暫存，按「確定」才生效
+// 敵方可出兵種（設定面板勾選，至少保留一種）；pending 供設定面板暫存，按「確定」才生效
+let enemyTypes = {pawn:true, archer:true, lancer:true};
+let pendingEnemyTypes = {pawn:true, archer:true, lancer:true};
+
+// 動態算出下一次敵軍出兵間隔：以難度為基準，每次隨機擾動 → 不規律；
+// 敵方城堡血量越低，出兵越密（反撲機制），整體隨戰況動態調整。
+function enemySpawnInterval(){
+  const d = DIFF[DIFFICULTY];
+  let iv = d.base + (Math.random()*2 - 1) * d.jitter;
+  const hpRatio = Math.max(0, state.eHP) / CASTLE_HP;   // 1=滿血, 0=快輸
+  iv -= (1 - hpRatio) * 0.6;                            // 快輸時最多加快 0.6 秒（反撲，避免難以收尾）
+  return Math.max(2.0, iv);
+}
+/* ====================================================== */
+
+const cv = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+const W = cv.width, H = cv.height;
+const GROUND_Y = 300;
+const CASTLE_H = 150;
+const ENGAGE = 34;
+const castleP = {x:115};
+const castleE = {x:W-115};
+
+const IM = {};
+const LOAD = [
+  ['p_idle','assets/sprites/blue_idle.png',8],
+  ['p_run','assets/sprites/blue_run.png',6],
+  ['blue_atk','assets/sprites/blue_atk.png',8],
+  ['e_idle','assets/sprites/red_idle.png',8],
+  ['e_run','assets/sprites/red_run.png',6],
+  ['e_atk','assets/sprites/red_atk.png',8],
+  ['red_archer_idle','assets/sprites/red_archer_idle.png',6],
+  ['red_archer_run','assets/sprites/red_archer_run.png',4],
+  ['red_archer_atk','assets/sprites/red_archer_atk.png',8],
+  ['red_lancer_idle','assets/sprites/red_lancer_idle.png',12],
+  ['red_lancer_run','assets/sprites/red_lancer_run.png',6],
+  ['red_lancer_atk','assets/sprites/red_lancer_atk.png',3],
+  ['archer_idle','assets/sprites/archer_idle.png',6],
+  ['archer_run','assets/sprites/archer_run.png',4],
+  ['archer_atk','assets/sprites/archer_atk.png',8],
+  ['lancer_idle','assets/sprites/lancer_idle.png',12],
+  ['lancer_run','assets/sprites/lancer_run.png',6],
+  ['lancer_atk','assets/sprites/lancer_atk.png',3],
+  ['arrow','assets/sprites/arrow.png',1],
+  ['castle_p','assets/sprites/castle_blue.png',1],
+  ['castle_e','assets/sprites/castle_red.png',1],
+  ['bush','assets/sprites/bush.png',8],
+  ['rock','assets/sprites/rock.png',1],
+  ['tree00','assets/sprites/tree00.png',1],
+  ['tree01','assets/sprites/tree01.png',1],
+  ['tree02','assets/sprites/tree02.png',1],
+  ['tree03','assets/sprites/tree03.png',1],
+  ['tree04','assets/sprites/tree04.png',1],
+  ['tree05','assets/sprites/tree05.png',1],
+  ['tree06','assets/sprites/tree06.png',1],
+  ['tree07','assets/sprites/tree07.png',1],
+  ['stump00','assets/sprites/stump00.png',1],
+  ['stump01','assets/sprites/stump01.png',1],
+  ['stump02','assets/sprites/stump02.png',1],
+  ['stump03','assets/sprites/stump03.png',1],
+  ['cloud00','assets/sprites/cloud00.png',1],
+  ['cloud01','assets/sprites/cloud01.png',1],
+  ['cloud02','assets/sprites/cloud02.png',1],
+  ['cloud03','assets/sprites/cloud03.png',1],
+  ['cloud04','assets/sprites/cloud04.png',1],
+  ['cloud05','assets/sprites/cloud05.png',1],
+  ['cloud06','assets/sprites/cloud06.png',1],
+  ['cloud07','assets/sprites/cloud07.png',1],
+];
+const FRAMES = {};
+
+/* ===================== 音效（Web Audio 即時合成，免音檔） ===================== */
+let actx=null;
+let muted=false;
+function initAudio(){ try{ if(!actx) actx=new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==='suspended') actx.resume(); }catch(e){} }
+function tone(freq,dur,type,vol,slideTo){
+  if(!actx||muted) return;
+  const o=actx.createOscillator(), g=actx.createGain();
+  o.type=type||'square'; o.frequency.value=freq;
+  if(slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, actx.currentTime+dur);
+  g.gain.setValueAtTime(vol||0.08, actx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime+dur);
+  o.connect(g); g.connect(actx.destination); o.start(); o.stop(actx.currentTime+dur);
+}
+function noise(dur,vol){
+  if(!actx||muted) return;
+  const n=Math.floor(actx.sampleRate*dur), buf=actx.createBuffer(1,n,actx.sampleRate), d=buf.getChannelData(0);
+  for(let i=0;i<n;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/n,2);
+  const s=actx.createBufferSource(); s.buffer=buf;
+  const g=actx.createGain(); g.gain.value=vol||0.05;
+  s.connect(g); g.connect(actx.destination); s.start();
+}
+const sfx={
+  spawn(){ tone(520,0.12,'square',0.09,900); },                 // 出兵（答對）
+  wrong(){ tone(300,0.20,'sawtooth',0.09,150); },               // 答錯
+  hit(){ if(Math.random()<0.3) noise(0.06,0.04); },             // 揮刀/命中（降頻免吵）
+  die(){ noise(0.14,0.06); tone(260,0.16,'sawtooth',0.06,120); },// 小兵倒下
+  castle(){ tone(150,0.18,'triangle',0.12,90); noise(0.1,0.05); },// 城堡受擊
+  win(){ [523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,0.18,'square',0.1),i*120)); },
+  lose(){ [392,330,262,196].forEach((f,i)=>setTimeout(()=>tone(f,0.24,'sawtooth',0.1),i*150)); },
+  click(){ tone(660,0.05,'square',0.05,520); },                  // 按鈕音效
+  coin(){ tone(880,0.07,'square',0.08,1320); setTimeout(()=>tone(1320,0.10,'square',0.07,1760),60); }, // 獲得金幣
+};
+
+/* ===================== 擊殺 / 受擊粒子特效 ===================== */
+let particles=[];
+function burst(x,y,color,n){
+  for(let i=0;i<(n||10);i++){
+    const a=Math.random()*Math.PI*2, sp=50+Math.random()*110;
+    particles.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-30,life:0.45+Math.random()*0.35,max:0.8,color,sz:2+Math.random()*3});
+  }
+}
+function updateParticles(dt){
+  for(const p of particles){ p.life-=dt; p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=300*dt; }
+  particles=particles.filter(p=>p.life>0);
+}
+function drawParticles(){
+  for(const p of particles){
+    ctx.save(); ctx.globalAlpha=Math.max(0,p.life/p.max); ctx.fillStyle=p.color;
+    ctx.fillRect(p.x-p.sz/2,p.y-p.sz/2,p.sz,p.sz); ctx.restore();
+  }
+}
+
+let SCREEN='menu';           // 'menu' | 'playing' | 'over'
+let ansText='';              // 螢幕鍵盤輸入的目前答案（不用原生 input，避免彈出系統鍵盤）
+let state, lastT=0, enemyTimer, demoTimer, curQ, clock=0;
+
+function preload(cb){
+  let n=0,done=false; const total=LOAD.length;
+  const finish=()=>{ if(!done){done=true;cb();} };
+  for(const [key,path,frames] of LOAD){
+    FRAMES[key]=frames;
+    const img=new Image();
+    img.onload=img.onerror=()=>{ if(++n===total) finish(); };
+    img.src=path; IM[key]=img;
+  }
+  setTimeout(finish,3000);
+}
+function imgReady(k){ const i=IM[k]; return i&&i.complete&&i.naturalWidth>0; }
+
+function newState(){ return {units:[], projectiles:[], pHP:CASTLE_HP, eHP:CASTLE_HP, correct:0, wrong:0, coins:0}; }
+function spawn(side, type){
+  if(side==='e'){
+    const etypes=TROOP_ORDER.filter(tp=>enemyTypes[tp]);   // 只從設定的可出兵種中隨機
+    if(!etypes.length) etypes.push('pawn');                 // 保險：理論上設定已保證至少一種
+    const tp=etypes[Math.floor(Math.random()*etypes.length)];
+    const t=TROOPS[tp], rt=RED_TROOPS[tp];
+    const hp=t.hp*(0.7+Math.random()*0.7);   // 紅方每次出兵血量在 70%~140% 間浮動（增加隨機性）
+    state.units.push({side:'e', type:tp, x:castleE.x, hp, maxhp:hp, atk:t.atk, speed:t.speed, cdMax:t.cd, cd:0,
+                      draw:rt.draw, ranged:!!t.ranged, range:t.range||ENGAGE, projSpeed:t.projSpeed||340,
+                      state:'move', frame:0, animT:0});
+  } else {
+    const t=TROOPS[type]||TROOPS.pawn;
+    state.units.push({side:'p', type, x:castleP.x, hp:t.hp, maxhp:t.hp, atk:t.atk, speed:t.speed, cdMax:t.cd, cd:0,
+                      draw:t.draw, ranged:!!t.ranged, range:t.range||ENGAGE, projSpeed:t.projSpeed||340,
+                      state:'move', frame:0, animT:0});
+  }
+}
+
+// 主選單的待命小兵（原地待機，不移動不交戰）
+function setupMenuTroops(){
+  const idle=(side,x)=>({side, type: side==='p'?'pawn':'pawn', x, hp:UNIT_HP, cd:0, cdMax:ATTACK_CD, draw:UNIT_DRAW, state:'idle', frame:Math.floor(Math.random()*8), animT:Math.random()});
+  state.units=[
+    idle('p',castleP.x+70), idle('p',castleP.x+120), idle('p',castleP.x+165),
+    idle('e',castleE.x-70), idle('e',castleE.x-120), idle('e',castleE.x-165),
+  ];
+}
+function menuTick(dt){
+  for(const u of state.units){ u.animT+=dt; while(u.animT>1/8){ u.animT-=1/8; u.frame++; } }
+}
+
+function pickQuestion(){
+  curQ=QUESTIONS[Math.floor(Math.random()*QUESTIONS.length)];
+  document.getElementById('qText').innerHTML=renderQ(curQ.q);
+  setAns('');   // 清空螢幕鍵盤輸入
+}
+// 把 x / 2、x ÷ 3 等轉成「上面分子、下面分母」的上下分數
+function renderQ(q){
+  return q.replace(/([x\d])\s*[\/÷]\s*(\d+)/g,
+    (m,num,den)=>`<span class="frac"><span class="num">${num}</span><span class="den">${den}</span></span>`);
+}
+
+function setAns(t){
+  ansText=t;
+  const el=document.getElementById('ans');
+  el.textContent = t || ' ';          // 空時放一個空格維持高度
+  el.classList.remove('flash');
+}
+function pressKey(k){
+  if(SCREEN!=='playing') return;
+  if(k==='C'){ setAns(''); return; }
+  if(k==='OK'){ checkAnswer(); return; }
+  if(k==='minus'){ if(ansText==='' || ansText==='-') setAns('-'); return; }   // 只允許開頭負號
+  if(ansText.length>=8) return;        // 限長度，避免溢出
+  setAns(ansText + k);
+}
+function checkAnswer(){
+  if(SCREEN!=='playing') return;
+  const v=parseFloat(ansText);
+  if(isNaN(v)) return;
+  if(Math.abs(v-curQ.a)<1e-6){
+    state.correct++; state.coins+=5; sfx.coin();                  // 答對 +5 金幣（不再自動出兵）
+    burst(W/2, GROUND_Y-30, '#ffd347', 12);                       // 金幣迸發特效
+  }
+  else{ state.wrong++; sfx.wrong(); const el=document.getElementById('ans'); el.classList.add('flash'); setTimeout(()=>el.classList.remove('flash'),350); } // 答錯：紅框閃一下
+  updateStats();
+  pickQuestion();   // 無論對錯都直接換下一題
+}
+
+function buyTroop(type){
+  if(SCREEN!=='playing') return;
+  const t=TROOPS[type]; if(!t) return;
+  if(state.coins < t.cost) return;           // 金幣不足不出兵
+  state.coins -= t.cost; spawn('p', type); sfx.spawn();
+  updateStats();
+}
+function updateStats(){
+  document.getElementById('correct').textContent=state.correct;
+  document.getElementById('coins').textContent=state.coins;
+  TROOP_ORDER.forEach(tp=>{ const b=document.getElementById('buy_'+tp); if(b) b.disabled = state.coins < TROOPS[tp].cost; });
+  document.getElementById('wrong').textContent=state.wrong;
+  document.getElementById('hpP').style.width=(Math.max(0,state.pHP)/CASTLE_HP*100)+'%';
+  document.getElementById('hpE').style.width=(Math.max(0,state.eHP)/CASTLE_HP*100)+'%';
+  document.getElementById('hpPt').textContent='我方城堡 '+Math.max(0,Math.ceil(state.pHP));
+  document.getElementById('hpEt').textContent='敵方城堡 '+Math.max(0,Math.ceil(state.eHP));
+}
+
+function atEnemyCastle(u){ return u.side==='p' ? u.x>=castleE.x-35 : u.x<=castleP.x+35; }
+
+function step(dt, demo){
+  // 出兵
+  enemyTimer-=dt;
+  if(enemyTimer<=0){ spawn('e'); enemyTimer=demo?2.4:enemySpawnInterval(); }
+  if(demo){ demoTimer-=dt; if(demoTimer<=0){ spawn('p'); demoTimer=2.2; } }
+
+  for(const u of state.units){
+    u.cd-=dt; u.animT+=dt;
+    let target=null,tdist=Infinity;
+    for(const o of state.units){
+      if(o.side===u.side||o.hp<=0) continue;
+      const d=u.side==='p'?(o.x-u.x):(u.x-o.x);
+      if(d>0&&d<tdist){ target=o; tdist=d; }
+    }
+    const reach = u.ranged ? u.range : ENGAGE;
+    if(target && tdist<=reach){
+      u.state='attack';
+      if(u.cd<=0){
+        if(u.ranged) spawnArrow(u);
+        else target.hp-=u.atk*dmgMult(u.type, target.type);
+        u.cd=u.cdMax; if(!demo) sfx.hit();
+      }
+    }
+    else if(atEnemyCastle(u)){
+      u.state='attack';
+      if(u.side==='p') u.x=Math.min(u.x,castleE.x-35); else u.x=Math.max(u.x,castleP.x+35);
+      if(u.cd<=0){ if(!demo){ if(u.side==='p'){ state.eHP-=CASTLE_DMG; burst(castleE.x,GROUND_Y-70,'#ff9a9a',8); sfx.castle(); } else { state.pHP-=CASTLE_DMG; burst(castleP.x,GROUND_Y-70,'#7bc0ff',8); sfx.castle(); } } u.cd=u.cdMax; }
+    } else { u.state='move'; u.x+=(u.side==='p'?1:-1)*u.speed*dt; }
+    const fps=u.state==='attack'?12:(u.state==='move'?9:8);
+    while(u.animT>1/fps){ u.animT-=1/fps; u.frame++; }
+  }
+  updateProjectiles(dt, demo);
+  const dead=state.units.filter(u=>u.hp<=0);
+  for(const u of dead){ burst(u.x,GROUND_Y-22,u.side==='p'?'#7bc0ff':'#ff9a9a',12); }
+  if(dead.length && !demo && Math.random()<0.6) sfx.die();
+  state.units=state.units.filter(u=>u.hp>0);
+  if(demo){ // 演示模式城堡不死、兵數封頂
+    state.pHP=CASTLE_HP; state.eHP=CASTLE_HP;
+    if(state.units.length>26) state.units.splice(0,state.units.length-26);
+  } else {
+    updateStats();
+    if(state.eHP<=0) endGame(true);
+    else if(state.pHP<=0) endGame(false);
+  }
+}
+
+/* 遠程兵種（弓箭手）發射弓箭：箭直線飛行，命中敵方單位扣血 */
+function spawnArrow(u){
+  const dir = u.side==='p'?1:-1;
+  const y = GROUND_Y - u.draw*0.55;
+  state.projectiles.push({x:u.x+dir*16, y, vx:dir*u.projSpeed, dmg:u.atk, side:u.side, ownerType:u.type, life:3});
+}
+function updateProjectiles(dt, demo){
+  const arr=state.projectiles;
+  for(const p of arr){
+    p.x+=p.vx*dt; p.life-=dt;
+    for(const o of state.units){
+      if(o.side!==p.side && o.hp>0 && Math.abs(o.x-p.x)<16){
+        o.hp-=p.dmg*dmgMult(p.ownerType, o.type); burst(p.x,GROUND_Y-22, p.side==='p'?'#ffd166':'#ff7676',8);
+        if(!demo) sfx.hit();
+        p.life=0; p.x=-99999; break;
+      }
+    }
+  }
+  state.projectiles=arr.filter(p=>p.life>0 && p.x>0 && p.x<W);
+}
+
+function unitVisual(u){
+  let sheets, anim;
+  if(u.side==='p'){ const t=TROOPS[u.type]||TROOPS.pawn; sheets=t.sheets; anim=t.anim; }
+  else { const rt=RED_TROOPS[u.type]||RED_TROOPS.pawn; sheets=rt.sheets; anim=rt.anim; }
+  if(u.state==='attack') return {k:sheets.atk, fi:u.frame % anim.atk};
+  if(u.state==='move')   return {k:sheets.run,  fi:u.frame % anim.run};
+  return {k:sheets.idle, fi:u.frame % anim.idle};
+}
+
+function drawBackground(){
+  // 天空：從深藍到地平線暖色（黎明）
+  const g=ctx.createLinearGradient(0,0,0,GROUND_Y);
+  g.addColorStop(0,'#16203f'); g.addColorStop(0.55,'#2f4a7a'); g.addColorStop(1,'#e8a86b');
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,GROUND_Y);
+  // 太陽光暈
+  const sun=ctx.createRadialGradient(W*0.5,GROUND_Y*0.34,10,W*0.5,GROUND_Y*0.34,280);
+  sun.addColorStop(0,'rgba(255,226,170,.55)');
+  sun.addColorStop(1,'rgba(255,226,170,0)');
+  ctx.fillStyle=sun; ctx.fillRect(0,0,W,GROUND_Y);
+  // 雲朵（使用 Tiny Swords 的雲裝飾素材，並緩慢飄動）
+  drawClouds();
+  // 遠山（放在地平線後面，遠處，不要遮到地面）
+  ctx.fillStyle='#2c4a3a'; hill(-W*0.08,GROUND_Y-18,W*0.62,60);
+  ctx.fillStyle='#234034'; hill(W*0.38,GROUND_Y-14,W*0.78,78);
+  // 草地（平坦地面，讓城堡/小兵穩穩站著）
+  const gg=ctx.createLinearGradient(0,GROUND_Y,0,H);
+  gg.addColorStop(0,'#3f7d3a'); gg.addColorStop(1,'#2b5527');
+  ctx.fillStyle=gg; ctx.fillRect(0,GROUND_Y,W,H-GROUND_Y);
+  // 地面陰影線（讓城堡腳底有接地的感覺）
+  ctx.fillStyle='#285026'; ctx.fillRect(0,GROUND_Y,W,5);
+}
+function hill(x0,base,yw,h){
+  ctx.beginPath();
+  ctx.moveTo(x0,base);
+  ctx.quadraticCurveTo(x0+yw/2,base-h,x0+yw,base);
+  ctx.closePath(); ctx.fill();
+}
+/* 雲朵佈局：使用 Tiny Swords 的雲裝飾素材，緩慢左右飄動 */
+const CLOUDS=[
+  {k:'cloud00',x:  80, y: 20, w:210, sp: 8},
+  {k:'cloud04',x: 360, y: 40, w:230, sp: 5},
+  {k:'cloud01',x: 680, y: 25, w:170, sp:10},
+  {k:'cloud02',x: 240, y:155, w:120, sp: 7},
+  {k:'cloud05',x: 540, y:160, w:150, sp: 9},
+  {k:'cloud07',x: 800, y:120, w: 90, sp: 6},
+];
+function drawClouds(){
+  for(const c of CLOUDS){
+    if(!imgReady(c.k)) continue;
+    const img=IM[c.k];
+    const h=c.w*(img.height/img.width);
+    const span=W+c.w+60;                       // 讓雲可整朵移出螢幕再從另一側回來
+    let dx=((c.x+clock*c.sp)%span+span)%span;  // 持續向右緩緩飄移
+    if(dx>W) dx-=span;
+    ctx.drawImage(img, dx, c.y, c.w, h);
+  }
+}
+function drawDecor(){
+  // 樹與樹樁：用 depth 製造遠近層次（depth 越大=越近越大越清晰），
+  // 不再額外畫地面陰影，避免在土路上出現髒斑。
+  const trees=[
+    {k:'tree02',x:520,h: 96,depth:0.70},   // 遠：小、淡（右中，避開中央草叢）
+    {k:'tree00',x:150,h:112,depth:0.82},   // 左側
+    {k:'tree04',x:800,h:104,depth:0.84},   // 右側
+    {k:'stump02',x:530,h:30,depth:0.86},   // 右中樹樁
+    {k:'tree03',x:670,h:146,depth:1.00},   // 右中（避開石頭）
+    {k:'stump01',x:375,h:40,depth:1.00},   // 中央樹樁
+    {k:'tree01',x:320,h:162,depth:1.18},   // 近：大、清楚（左中，避開草叢石頭）
+    {k:'stump03',x:690,h:44,depth:1.10},   // 右側樹樁
+  ];
+  // 由遠（depth 小）到近（depth 大）依序繪製，近的蓋在遠的上面
+  const order=trees.slice().sort((a,b)=>a.depth-b.depth);
+  for(const it of order){
+    if(!imgReady(it.k)) continue;
+    const img=IM[it.k]; const sw=img.width/FRAMES[it.k];
+    const dh=it.h, dw=dh*(sw/img.height), cx=it.x;
+    // 遠處的樹略為淡化（大氣透視），增加層次
+    ctx.save();
+    if(it.depth<1) ctx.globalAlpha=0.55+0.45*it.depth;
+    ctx.drawImage(img,0,0,sw,img.height,cx-dw/2,GROUND_Y-dh,dw,dh);
+    ctx.restore();
+  }
+  // 原有的草叢與石頭（不額外畫陰影，避免土路出現髒斑）
+  const items=[{k:'bush',x:W*0.28,h:54},{k:'rock',x:W*0.40,h:40},{k:'bush',x:W*0.52,h:46},{k:'rock',x:W*0.66,h:46},{k:'bush',x:W*0.78,h:50},{k:'rock',x:W*0.20,h:34}];
+  for(const it of items){
+    if(!imgReady(it.k)) continue;
+    const img=IM[it.k]; const sw=img.width/FRAMES[it.k];
+    const dh=it.h,dw=dh*(sw/img.height);
+    ctx.drawImage(img,0,0,sw,img.height,it.x-dw/2,GROUND_Y-dh,dw,dh);
+  }
+}
+function drawCastle(side){
+  const key=side==='p'?'castle_p':'castle_e'; const gate=side==='p'?castleP.x:castleE.x;
+  const embed=24; // 城堡更埋入草地，穩穩立在土路上
+  if(imgReady(key)){ const img=IM[key]; const cw=CASTLE_H*(img.width/img.height),ch=CASTLE_H; const dx=side==='p'?gate-cw:gate; ctx.drawImage(img,dx,GROUND_Y-ch+embed,cw,ch); }
+  else{ const w=90,h=CASTLE_H; ctx.fillStyle=side==='p'?'#4ea1ff':'#ff6b6b'; ctx.fillRect(gate-w/2,GROUND_Y-h+embed,w,h); ctx.fillStyle='rgba(255,255,255,.25)'; for(let i=0;i<3;i++) ctx.fillRect(gate-w/2+i*30,GROUND_Y-h-12+embed,20,14); }
+}
+function drawUnit(u){
+  const dh=u.draw, dy=GROUND_Y-dh+8; // 往下偏移，讓小兵的腳真正踩到土路
+  const vis=unitVisual(u);
+  if(imgReady(vis.k)){
+    const img=IM[vis.k]; const sw=img.width/FRAMES[vis.k],sh=img.height; const dw=dh*(sw/sh),dx=u.x-dw/2;
+    ctx.save(); if(u.side==='e'){ ctx.translate(u.x,0); ctx.scale(-1,1); ctx.translate(-u.x,0); } ctx.drawImage(img,vis.fi*sw,0,sw,sh,dx,dy,dw,dh); ctx.restore();
+  } else { ctx.fillStyle=u.side==='p'?'#7bc0ff':'#ff9a9a'; ctx.beginPath(); ctx.arc(u.x,dy+dh*0.6,dh*0.28,0,Math.PI*2); ctx.fill(); }
+  if(SCREEN==='menu') return; // 選單待命兵不畫血條
+  const bw=26,hpw=bw*Math.max(0,u.hp)/(u.maxhp||UNIT_HP);
+  ctx.fillStyle='#2a3147'; ctx.fillRect(u.x-bw/2,dy-8,bw,4);
+  ctx.fillStyle=u.side==='p'?'#4ea1ff':'#ff5252'; ctx.fillRect(u.x-bw/2,dy-8,hpw,4);
+}
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  drawBackground(); drawDecor(); drawCastle('p'); drawCastle('e');
+  for(const u of state.units) drawUnit(u);
+  drawProjectiles();
+  drawParticles();
+}
+function drawProjectiles(){
+  if(!imgReady('arrow')) return;
+  const img=IM['arrow'];
+  for(const p of state.projectiles){
+    ctx.save();
+    if(p.vx<0){ ctx.translate(p.x,0); ctx.scale(-1,1); ctx.translate(-p.x,0); }
+    ctx.drawImage(img, p.x-12, p.y-12, 24, 24);
+    ctx.restore();
+  }
+}
+
+function loop(t){
+  if(!lastT) lastT=t;
+  const dt=Math.min(0.05,(t-lastT)/1000); lastT=t; clock+=dt;
+  if(SCREEN==='menu'){ menuTick(dt); draw(); }
+  else if(SCREEN==='playing'){ step(dt,false); updateParticles(dt); draw(); }
+  else { updateParticles(dt); draw(); } // over：粒子繼續淡出
+  requestAnimationFrame(loop);
+}
+
+/* ---------- 畫面切換 ---------- */
+function showMenu(){
+  SCREEN='menu';
+  particles=[];
+  state=newState(); setupMenuTroops();
+  document.getElementById('menu').classList.remove('hidden');
+  document.getElementById('over').style.display='none';
+  document.getElementById('topbar').classList.add('hidden');
+  document.getElementById('quizBox').classList.add('hidden');
+  document.getElementById('topInfo').classList.add('hidden');
+  document.getElementById('keyboard').classList.add('hidden');
+}
+function startGame(){
+  initAudio();              // 用戶點「開始」手勢後啟用音效（iPad/iOS 需要）
+  particles=[];
+  SCREEN='playing';
+  state=newState(); enemyTimer=enemySpawnInterval();
+  document.getElementById('menu').classList.add('hidden');
+  document.getElementById('over').style.display='none';
+  document.getElementById('topbar').classList.remove('hidden');
+  document.getElementById('quizBox').classList.remove('hidden');
+  document.getElementById('topInfo').classList.remove('hidden');
+  document.getElementById('keyboard').classList.remove('hidden');
+  pickQuestion(); updateStats();
+}
+function endGame(win){
+  SCREEN='over';
+  if(win) sfx.win(); else sfx.lose();
+  document.getElementById('overTitle').textContent=win?'🎉 攻陷敵城，勝利！':'💥 我方城堡淪陷…';
+  document.getElementById('overTitle').style.color=win?'#ffd166':'#ff6b6b';
+  // 答題情況移到結算畫面中，隱藏底部答題欄與統計列
+  const total=state.correct+state.wrong, rate=total?Math.round(state.correct/total*100):0;
+  document.getElementById('overStats').innerHTML=
+    `<span class="ok">答對 <b>${state.correct}</b> 題</span>`+
+    `<span class="ng">答錯 <b>${state.wrong}</b> 題</span>`+
+    `<span>答對率 <b>${rate}%</b></span>`;
+  document.getElementById('quizBox').classList.add('hidden');
+  document.getElementById('topInfo').classList.add('hidden');
+  document.getElementById('keyboard').classList.add('hidden');
+  document.getElementById('over').style.display='flex';
+}
+function quitGame(){
+  // 瀏覽器安全限制下 window.close() 多半無效，故給友善提示
+  try{ window.close(); }catch(e){}
+  ctx.clearRect(0,0,W,H);
+  drawBackground();
+  ctx.fillStyle='rgba(6,8,16,.9)'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#ffd166'; ctx.font='bold 30px "Microsoft JhengHei",sans-serif'; ctx.textAlign='center';
+  ctx.fillText('感謝遊玩，後會有期！⚔️', W/2, H/2-10);
+  ctx.fillStyle='#9aa6c4'; ctx.font='15px "Microsoft JhengHei",sans-serif';
+  ctx.fillText('可直接關閉此分頁；或重新整理回到主選單', W/2, H/2+28);
+  document.getElementById('menu').classList.add('hidden');
+  document.getElementById('quizBox').classList.add('hidden');
+  document.getElementById('keyboard').classList.add('hidden');
+  document.getElementById('topInfo').classList.add('hidden');
+  SCREEN='over';
+}
+
+document.getElementById('btnStart').addEventListener('click',startGame);
+document.getElementById('btnQuit').addEventListener('click',quitGame);
+document.getElementById('btnAgain').addEventListener('click',startGame);
+document.getElementById('btnMenu').addEventListener('click',showMenu);
+document.querySelectorAll('#keyboard .key').forEach(b=>{
+  b.addEventListener('click',()=>{ initAudio(); pressKey(b.dataset.k); });
+});
+
+/* ---------- 設定面板 ---------- */
+function openSettings(){
+  document.getElementById('setHP').value=CASTLE_HP;
+  pendingDiff=DIFFICULTY;
+  pendingEnemyTypes={...enemyTypes};   // 開啟設定時以目前生效值為基準
+  document.querySelectorAll('#setEnemyTypes input').forEach(cb=>{ cb.checked=!!pendingEnemyTypes[cb.dataset.t]; });
+  syncSeg();
+  document.getElementById('settings').classList.remove('hidden');
+}
+function syncSeg(){
+  document.querySelectorAll('#setDiff button').forEach(b=>{
+    b.classList.toggle('active', b.dataset.d===pendingDiff);
+  });
+}
+function closeSettings(){ document.getElementById('settings').classList.add('hidden'); }
+function applySettings(){
+  const hp=parseFloat(document.getElementById('setHP').value);
+  if(!isNaN(hp) && hp>=10 && hp<=999) CASTLE_HP=hp;
+  if(DIFF[pendingDiff]) DIFFICULTY=pendingDiff;
+  if(!Object.values(pendingEnemyTypes).some(v=>v)) pendingEnemyTypes.pawn=true;  // 保險：至少一種
+  enemyTypes={...pendingEnemyTypes};
+  closeSettings();
+}
+document.getElementById('btnSet').addEventListener('click',openSettings);
+document.getElementById('setOK').addEventListener('click',applySettings);
+document.getElementById('setCancel').addEventListener('click',closeSettings);
+document.querySelectorAll('#setDiff button').forEach(b=>{
+  b.addEventListener('click',()=>{ pendingDiff=b.dataset.d; syncSeg(); });
+});
+// 敵軍兵種勾選：即時更新暫存值，並保證至少保留一種
+document.querySelectorAll('#setEnemyTypes input').forEach(cb=>{
+  cb.addEventListener('change',()=>{
+    const t=cb.dataset.t;
+    pendingEnemyTypes[t]=cb.checked;
+    if(!Object.values(pendingEnemyTypes).some(v=>v)){ cb.checked=true; pendingEnemyTypes[t]=true; }  // 全空則強制保留剛取消的這項
+  });
+});
+
+/* ---------- 遊戲說明 ---------- */
+function openHelp(){ document.getElementById('help').classList.remove('hidden'); }
+function closeHelp(){ document.getElementById('help').classList.add('hidden'); }
+document.getElementById('btnHelp').addEventListener('click',openHelp);
+document.getElementById('helpClose').addEventListener('click',closeHelp);
+document.getElementById('help').addEventListener('click',e=>{ if(e.target.id==='help') closeHelp(); });
+
+/* ---------- 靜音切換 ---------- */
+document.getElementById('btnMute').addEventListener('click',()=>{
+  muted=!muted;
+  const b=document.getElementById('btnMute');
+  b.textContent=muted?'🔇':'🔊';
+  b.title=muted?'取消靜音':'靜音';
+  if(!muted){ initAudio(); sfx.click(); }   // 取消靜音時給一下回饋
+});
+
+/* 任何按鈕點擊都播放音效（首次點擊同時初始化音訊） */
+document.addEventListener('click',e=>{
+  const b=e.target.closest('button');
+  if(b){ initAudio(); sfx.click(); }
+});
+
+/* ---------- 底部兵種購買列（依 TROOPS 動態產生） ---------- */
+function buildTroopBar(){
+  const bar=document.getElementById('troopbar');
+  bar.innerHTML='';
+  TROOP_ORDER.forEach(tp=>{
+    const t=TROOPS[tp];
+    const b=document.createElement('button');
+    b.className='troopbtn';
+    b.id='buy_'+tp;
+    // 全部兵種統一用同一張劍圖當背景，文字（兵種名+價格）落在劍刃上
+    b.innerHTML = '<span class="tlabel">'+t.label+' '+t.cost+'<img class="coin-ic" src="assets/sprites/coin.png" alt=""></span>';
+    b.addEventListener('click',()=>buyTroop(tp));
+    bar.appendChild(b);
+  });
+}
+buildTroopBar();
+
+preload(()=>{ showMenu(); requestAnimationFrame(loop); });
+</script>
+</body>
+</html>
