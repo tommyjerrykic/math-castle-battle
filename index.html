@@ -351,21 +351,69 @@
   .wrong-list .wl-q{font-size:16px; font-weight:700;}
   .wrong-list .wl-a{font-size:14px; color:#ffb3b3;}
 
-  /* 主選單專屬背景層（獨立於戰場 canvas，暫用 CSS 占位，重新設計時整層替換） */
+  /* 主選單專屬背景層（獨立於戰場 canvas；用現有 + 自創素材分層合成，元素皆 contain 不變形） */
   .menu-bg{
     position:absolute; inset:0; z-index:2; overflow:hidden;
-    background:linear-gradient(180deg,#1b2350 0%,#3a568f 46%,#cf8e5e 80%,#f0b873 100%);
+    background:linear-gradient(180deg,#16235a 0%,#2f4f95 34%,#6f9bd6 58%,#f4c87f 80%,#e8a85c 100%);
   }
+  /* 太陽（自創 bg_sun，帶光暈，緩緩呼吸） */
   .menu-bg .mb-sun{
-    position:absolute; top:7%; right:22%; width:96px; height:96px; border-radius:50%;
-    background:radial-gradient(circle at 50% 50%,#fff7da 0%,#ffd98a 55%,rgba(255,217,138,0) 75%);
-    box-shadow:0 0 70px 34px rgba(255,221,150,.30);
+    position:absolute; top:5%; right:13%; width:118px; height:118px; z-index:1;
+    background:url(assets/sprites/bg_sun.png) center/100% 100% no-repeat;
+    filter:drop-shadow(0 0 26px rgba(255,221,150,.55));
+    animation:sunpulse 5s ease-in-out infinite;
   }
-  .menu-bg .mb-hill{ position:absolute; bottom:34%; height:16%; background:#5b86c4; }
-  .menu-bg .mb-hill-l{ left:-6%; right:52%; border-radius:0 100% 0 0 / 0 100% 0 0; }
-  .menu-bg .mb-hill-r{ left:52%; right:-6%; border-radius:100% 0 0 0 / 100% 0 0 0; }
-  .menu-bg .mb-ground{ position:absolute; left:0; right:0; bottom:0; height:34%;
-    background:linear-gradient(180deg,#3f7d3a,#244a22); }
+  @keyframes sunpulse{0%,100%{transform:scale(1);opacity:.95}50%{transform:scale(1.06);opacity:1}}
+  /* 雲（飄動） */
+  .menu-bg .cloud{
+    position:absolute; z-index:1; pointer-events:none; opacity:.95; will-change:transform;
+    background-repeat:no-repeat; background-position:center; background-size:contain;
+  }
+  .menu-bg .c1{top:7%;  left:0; width:170px; height:64px; background-image:url(assets/sprites/cloud00.png); animation:drift 62s linear infinite;}
+  .menu-bg .c2{top:20%; left:0; width:120px; height:46px; background-image:url(assets/sprites/cloud01.png); animation:drift 78s linear infinite -18s;}
+  .menu-bg .c3{top:3%;  left:0; width:96px;  height:42px; background-image:url(assets/sprites/cloud02.png); animation:drift 54s linear infinite -33s;}
+  .menu-bg .c4{top:26%; left:0; width:150px; height:56px; background-image:url(assets/sprites/cloud04.png); animation:drift 86s linear infinite -8s;}
+  .menu-bg .c5{top:13%; left:0; width:120px; height:42px; background-image:url(assets/sprites/cloud05.png); animation:drift 70s linear infinite -52s;}
+  @keyframes drift{from{transform:translateX(-32vw)} to{transform:translateX(122vw)}}
+  /* 遠山（自創剪影） */
+  .menu-bg .mb-hills{
+    position:absolute; left:-2%; right:-2%; bottom:23%; height:26%; z-index:1; opacity:.9;
+    background:url(assets/sprites/bg_hills_far.png) center bottom/cover no-repeat;
+  }
+  /* 草地 */
+  .menu-bg .mb-ground{
+    position:absolute; left:0; right:0; bottom:0; height:25%; z-index:1;
+    background:linear-gradient(180deg,#5fa35c 0%,#3c7a3a 45%,#235020 100%);
+  }
+  /* 站立的精靈：底端對齊地平線，背景 contain 不變形 */
+  .menu-bg .spr{ position:absolute; background-repeat:no-repeat; background-position:bottom center; background-size:contain; }
+  /* 城堡（藍左 / 紅右，退後為框景） */
+  .menu-bg .mb-castle-l{ left:1%;  width:31%; height:40%; bottom:17%; z-index:2;
+    background-image:url(assets/sprites/castle_blue.png); filter:drop-shadow(0 6px 10px rgba(0,0,0,.35)); }
+  .menu-bg .mb-castle-r{ right:1%; width:31%; height:40%; bottom:17%; z-index:2;
+    background-image:url(assets/sprites/castle_red.png); filter:drop-shadow(0 6px 10px rgba(0,0,0,.35)); }
+  /* 主樹（城堡內側） */
+  .menu-bg .mb-tree-a{ left:21%;  width:17%; height:48%; bottom:16%; z-index:3; background-image:url(assets/sprites/tree00.png); }
+  .menu-bg .mb-tree-b{ right:21%; width:17%; height:48%; bottom:16%; z-index:3; background-image:url(assets/sprites/tree01.png); }
+  /* 小樹（靠近中央但保留中央留白） */
+  .menu-bg .mb-tree-c{ left:34%;  width:11%; height:28%; bottom:16%; z-index:3; background-image:url(assets/sprites/tree05.png); }
+  .menu-bg .mb-tree-d{ right:34%; width:11%; height:28%; bottom:16%; z-index:3; background-image:url(assets/sprites/tree04.png); }
+  /* 灌木（自創提取第 0 幀） */
+  .menu-bg .mb-bush-1{ left:15%;  width:13%; height:13%; bottom:15%; z-index:4; background-image:url(assets/sprites/menu_bush.png); }
+  .menu-bg .mb-bush-2{ right:15%; width:13%; height:13%; bottom:15%; z-index:4; background-image:url(assets/sprites/menu_bush.png); }
+  .menu-bg .mb-bush-3{ left:30%;  width:10%; height:10%; bottom:15%; z-index:4; background-image:url(assets/sprites/menu_bush.png); }
+  .menu-bg .mb-bush-4{ right:30%; width:10%; height:10%; bottom:15%; z-index:4; background-image:url(assets/sprites/menu_bush.png); }
+  /* 岩石 */
+  .menu-bg .mb-rock-1{ left:27%;  width:7%; height:9%; bottom:16%; z-index:4; background-image:url(assets/sprites/rock.png); }
+  .menu-bg .mb-rock-2{ right:27%; width:7%; height:9%; bottom:16%; z-index:4; background-image:url(assets/sprites/rock.png); }
+  /* 樹樁（前景角落） */
+  .menu-bg .mb-stump-1{ left:7%;  width:9%;  height:14%; bottom:14%; z-index:4; background-image:url(assets/sprites/stump00.png); }
+  .menu-bg .mb-stump-2{ right:7%; width:9%;  height:14%; bottom:14%; z-index:4; background-image:url(assets/sprites/stump01.png); }
+  /* 前景草叢（自創，最上層蓋住底部） */
+  .menu-bg .mb-grass{
+    position:absolute; left:0; right:0; bottom:0; height:15%; z-index:5;
+    background:url(assets/sprites/bg_grass.png) center bottom/cover no-repeat;
+  }
 
   .hidden{display:none !important;}
 </style>
@@ -378,9 +426,28 @@
     <!-- 主選單專屬背景層（與戰場 canvas 完全分開；重新設計主界面背景時只改這裡） -->
     <div class="menu-bg hidden" id="menuBg">
       <div class="mb-sun"></div>
-      <div class="mb-hill mb-hill-l"></div>
-      <div class="mb-hill mb-hill-r"></div>
+      <div class="cloud c1"></div>
+      <div class="cloud c2"></div>
+      <div class="cloud c3"></div>
+      <div class="cloud c4"></div>
+      <div class="cloud c5"></div>
+      <div class="mb-hills"></div>
       <div class="mb-ground"></div>
+      <div class="spr mb-castle-l"></div>
+      <div class="spr mb-castle-r"></div>
+      <div class="spr mb-tree-a"></div>
+      <div class="spr mb-tree-b"></div>
+      <div class="spr mb-tree-c"></div>
+      <div class="spr mb-tree-d"></div>
+      <div class="spr mb-bush-1"></div>
+      <div class="spr mb-bush-2"></div>
+      <div class="spr mb-bush-3"></div>
+      <div class="spr mb-bush-4"></div>
+      <div class="spr mb-rock-1"></div>
+      <div class="spr mb-rock-2"></div>
+      <div class="spr mb-stump-1"></div>
+      <div class="spr mb-stump-2"></div>
+      <div class="mb-grass"></div>
     </div>
 
     <!-- 主選單 -->
