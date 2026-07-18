@@ -972,25 +972,26 @@ function drawMenuScene(){
   if(imgReady('bg_grass')){ const img=IM['bg_grass']; ctx.drawImage(img,(W-img.width)/2, H-img.height, img.width, img.height); }
 }
 function drawMenuCastles(gy){
-  const ch=120;                                      // 遠景城堡較小
+  const ch=100;                                      // 遠景城堡較小，退到背景層
   for(const side of ['p','e']){
     const key=side==='p'?'castle_p':'castle_e';
     if(!imgReady(key)) continue;
     const img=IM[key]; const cw=ch*(img.width/img.height);
-    const x = side==='p' ? 150 : W-150;
-    ctx.save(); ctx.globalAlpha=0.94;
+    const x = side==='p' ? 250 : W-250;              // 往中間收，避開兩側框景
+    ctx.save(); ctx.globalAlpha=0.82;                 // 淡化，作為遠景不搶戲
     ctx.drawImage(img, x-cw/2, gy-ch, cw, ch);
     ctx.restore();
   }
 }
 function drawMenuDecor(gy){
+  // 樹木：推向螢幕最兩側作框景，與中央城堡（x=250/650）錯開，避免壓在城堡前
   const trees=[
-    {k:'tree05',x:46,    h:152, a:1},
-    {k:'tree06',x:W-52,  h:162, a:1},
-    {k:'tree01',x:122,   h:120, a:0.92},
-    {k:'tree03',x:W-132, h:128, a:0.92},
-    {k:'tree07',x:258,   h:96,  a:0.8},
-    {k:'tree04',x:W-250, h:100, a:0.8},
+    {k:'tree05',x:42,    h:158, a:1},
+    {k:'tree06',x:W-42,  h:168, a:1},
+    {k:'tree01',x:118,   h:124, a:0.95},
+    {k:'tree03',x:W-118, h:132, a:0.95},
+    {k:'tree07',x:188,   h:92,  a:0.82},
+    {k:'tree04',x:W-188, h:96,  a:0.82},
   ];
   for(const it of trees){
     if(!imgReady(it.k)) continue;
@@ -1000,10 +1001,14 @@ function drawMenuDecor(gy){
     ctx.drawImage(img,0,0,sw,img.height, it.x-dw/2, gy-it.h, dw, it.h);
     ctx.restore();
   }
+  // 灌木 / 岩石 / 樹樁：靠邊緣地面，不與城堡重疊
   const items=[
-    {k:'bush',x:W*0.16,h:50},{k:'rock',x:W*0.225,h:38},
-    {k:'bush',x:W*0.80,h:52},{k:'rock',x:W*0.865,h:40},
-    {k:'stump02',x:W*0.10,h:34},{k:'stump03',x:W*0.90,h:38},
+    {k:'stump02',x:52,    h:34},
+    {k:'bush',  x:88,     h:50},
+    {k:'rock',  x:136,    h:36},
+    {k:'stump03',x:W-52,  h:38},
+    {k:'bush',  x:W-88,   h:52},
+    {k:'rock',  x:W-136,  h:40},
   ];
   for(const it of items){
     if(!imgReady(it.k)) continue;
