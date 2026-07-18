@@ -315,16 +315,16 @@
   .stats b{color:var(--text);}
   /* 螢幕數字鍵盤（圓形按鈕素材） */
   .keyboard{
-    flex:0 0 auto; padding:10px 10px calc(12px + env(safe-area-inset-bottom));
+    flex:1 1 0; min-height:0; padding:14px 10px calc(16px + env(safe-area-inset-bottom));
     background:linear-gradient(180deg,#141b30,#0a0e18);
     border-top:3px solid #2a3450;
-    display:flex; flex-direction:column; align-items:center; gap:10px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;
   }
-  .kpad{ display:grid; grid-template-columns:repeat(3,56px); gap:7px; justify-content:center; }
+  .kpad{ display:grid; grid-template-columns:repeat(3,78px); gap:12px; justify-content:center; }
   .key{
-    width:56px; height:56px; border:none; border-radius:50%;
+    width:78px; height:78px; border:none; border-radius:50%;
     background:transparent url(assets/sprites/btn_round_blue.png) center/100% 100% no-repeat;
-    color:#fff; font-size:21px; font-weight:900; cursor:pointer;
+    color:#fff; font-size:30px; font-weight:900; cursor:pointer;
     display:flex; align-items:center; justify-content:center;
     text-shadow:0 1px 2px rgba(0,0,0,.6);
     -webkit-tap-highlight-color:transparent; touch-action:manipulation; user-select:none;
@@ -334,7 +334,7 @@
   .key.red:active{ background-image:url(assets/sprites/btn_round_red_press.png); }
   .ksub{ display:flex; justify-content:center; width:100%; }
   .key.submit{
-    width:72px; height:72px; font-size:19px; letter-spacing:1px;
+    width:96px; height:96px; font-size:24px; letter-spacing:1px;
     background:transparent url(assets/sprites/btn_round_red_big.png) center/100% 100% no-repeat;
   }
   .key.submit:active{ background-image:url(assets/sprites/btn_round_red_big_press.png); transform:scale(.96); }
