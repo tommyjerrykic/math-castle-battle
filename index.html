@@ -48,11 +48,11 @@
   }
   .menu-title{
     position:relative; display:inline-flex; align-items:center; justify-content:center;
-    padding:48px 96px;                                          /* 左右加寬，標題牌更寬 */
+    padding:36px 96px;                                          /* 上下壓低，左右維持寬 */
     background-color:#82564e;                                   /* 木棕墊底（圖片載入前短暫露出） */
     background-image:url(assets/sprites/title_wood_new.png);
-    background-size:100% 100%;                                  /* 木桌素材鋪滿整個標題牌（隨牌寬拉寬） */
-    background-position:center;
+    background-size:100% auto;                                  /* 寬度填滿、高度依比例，避免底部被拉進來 */
+    background-position:center top;                               /* 圖片頂部對齊標題牌頂部，下方超出裁掉 */
     background-repeat:no-repeat;
     border:none; border-radius:10px;
   }
