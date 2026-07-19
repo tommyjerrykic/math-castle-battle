@@ -48,24 +48,25 @@
   }
   .menu-title{
     position:relative; display:inline-flex; align-items:center; justify-content:center;
-    padding:36px 96px;                                          /* 上下壓低，左右維持寬 */
+    padding:48px 96px;                                          /* 左右加寬，標題牌更寬 */
     background-color:#82564e;                                   /* 木棕墊底（圖片載入前短暫露出） */
     background-image:url(assets/sprites/title_wood_new.png);
-    background-size:100% auto;                                  /* 寬度填滿、高度依比例，避免底部被拉進來 */
-    background-position:center top;                               /* 圖片頂部對齊標題牌頂部，下方超出裁掉 */
+    background-size:100% 100%;                                  /* 木桌素材鋪滿整個標題牌（隨牌寬拉寬） */
+    background-position:center;
     background-repeat:no-repeat;
     border:none; border-radius:10px;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.25),
+      inset 0 -3px 8px rgba(0,0,0,.35),
+      0 10px 22px rgba(0,0,0,.55);
   }
-  /* 金鉚釘改貼在文字左右兩側、靠近文字（原貼標題牌邊緣，現移入 .tt） */
-  .menu-title .tt{ position:relative; }
-  .menu-title .tt::before, .menu-title .tt::after{
-    content:''; position:absolute; top:42%; transform:translateY(-50%);
-    width:14px; height:14px; border-radius:50%;
+  .menu-title::before, .menu-title::after{
+    content:''; position:absolute; top:50%; width:14px; height:14px; border-radius:50%;
     background:radial-gradient(circle at 30% 30%, #fff4d6, #d4a868 40%, #5a3d24 90%);
-    border:2px solid #5a3d24;
+    border:2px solid #5a3d24; transform:translateY(-50%);
   }
-  .menu-title .tt::before{ left:-20px; }
-  .menu-title .tt::after{ right:-20px; }
+  .menu-title::before{left:10px;}
+  .menu-title::after{right:10px;}
   .menu-title .tt{
     font-size:clamp(26px,4.4vw,44px); font-weight:900; color:#fff4d6;
     text-shadow:0 2px 0 #5a3d24, 0 4px 6px rgba(0,0,0,.45);
