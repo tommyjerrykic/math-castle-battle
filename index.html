@@ -48,12 +48,11 @@
   }
   .menu-title{
     position:relative; display:inline-flex; align-items:center; justify-content:center;
-    min-width:300px; padding:0 96px;                                /* 左右維持寬，上下不留死距 */
-    aspect-ratio:2.5 / 1;                                           /* 讓標題牌比例對齊「木桌去掉底部桌沿」的可視區域 */
+    min-width:300px; padding:44px 96px;                             /* 上下留白讓木框不被文字貼死 */
     background-color:transparent;                                   /* 不墊棕色，框外直接透到背景 */
     background-image:url(assets/sprites/title_wood_new.png);
-    background-size:cover;                                          /* 填滿牌面，底部多出的桌沿自動裁掉 */
-    background-position:center top;                                   /* 上方和側邊框完整保留 */
+    background-size:100% 100%;                                      /* 完整顯示木桌素材（含四邊木框，不裁切） */
+    background-position:center;
     background-repeat:no-repeat;
     border:none; border-radius:10px;
     box-shadow:
