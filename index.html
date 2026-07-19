@@ -51,7 +51,7 @@
     padding:48px 96px;                                          /* 左右加寬，標題牌更寬 */
     background-color:#82564e;                                   /* 木棕墊底（圖片載入前短暫露出） */
     background-image:url(assets/sprites/title_wood_new.png);
-    background-size:100% 100%;                                  /* 木桌素材鋪滿整個標題牌（隨牌寬拉寬） */
+    background-size:140% 160%;                                  /* 放大木紋，把素材四邊的裝飾框推出可視區外 */
     background-position:center;
     background-repeat:no-repeat;
     border:none; border-radius:10px;
@@ -60,13 +60,6 @@
       inset 0 -3px 8px rgba(0,0,0,.35),
       0 10px 22px rgba(0,0,0,.55);
   }
-  .menu-title::before, .menu-title::after{
-    content:''; position:absolute; top:50%; width:14px; height:14px; border-radius:50%;
-    background:radial-gradient(circle at 30% 30%, #fff4d6, #d4a868 40%, #5a3d24 90%);
-    border:2px solid #5a3d24; transform:translateY(-50%);
-  }
-  .menu-title::before{left:10px;}
-  .menu-title::after{right:10px;}
   .menu-title .tt{
     font-size:clamp(26px,4.4vw,44px); font-weight:900; color:#fff4d6;
     text-shadow:0 2px 0 #5a3d24, 0 4px 6px rgba(0,0,0,.45);
