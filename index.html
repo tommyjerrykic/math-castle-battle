@@ -1391,26 +1391,29 @@ function drawDecor(){
 /* 戰場草坡上的裝飾：使用素材庫（Tiny Swords）的叢林 / 石頭 / 木柴 / 綿羊 / 金塊，
    散布在下半草坡，做出層次與生命力，且不擋地平線上的小兵 */
 const GRASS_DECOR=[
-  {k:'bushe2', x:80,  by:455, h:42},
-  {k:'rock2',  x:160, by:425, h:30},
-  {k:'bushe3', x:250, by:520, h:56},
-  {k:'wood_resource', x:335, by:470, h:34},
-  {k:'bushe1', x:430, by:540, h:58},
-  {k:'sheep',  x:520, by:452, h:46},
-  {k:'gold_resource', x:600, by:500, h:40},
-  {k:'bushe4', x:690, by:430, h:40},
-  {k:'rock3',  x:760, by:505, h:34},
-  {k:'bushe2', x:845, by:535, h:54},
-  {k:'rock1',  x:375, by:415, h:24},
+  {k:'bushe2', x:80,  by:455, s:1.00},
+  {k:'rock2',  x:160, by:405, s:0.78},
+  {k:'bushe3', x:250, by:525, s:1.00},
+  {k:'wood_resource', x:335, by:470, s:0.80},
+  {k:'bushe1', x:430, by:548, s:1.00},
+  {k:'sheep',  x:520, by:440, s:1.05},
+  {k:'gold_resource', x:600, by:500, s:0.85},
+  {k:'bushe4', x:690, by:395, s:1.00},
+  {k:'rock3',  x:760, by:510, s:0.78},
+  {k:'bushe2', x:845, by:540, s:1.00},
+  {k:'rock1',  x:375, by:372, s:0.78},
 ];
 function drawGrassDecor(){
-  // 由下（by 大＝近）到上（by 小＝遠）繪製，近的蓋在遠的上面
-  const order=GRASS_DECOR.slice().sort((a,b)=>a.by-b.by);
+  // 遠近層次：越靠近畫面下方（by 越大＝越近）整體越大，做出透視景深
+  const order=GRASS_DECOR.slice().sort((a,b)=>a.by-b.by); // 先畫遠的，再畫近的蓋在上面
   for(const it of order){
     if(!imgReady(it.k)) continue;
     const img=IM[it.k]; const sw=img.width/FRAMES[it.k];
-    const dw=it.h*(sw/img.height);
-    ctx.drawImage(img,0,0,sw,img.height, it.x-dw/2, it.by-it.h, dw, it.h);
+    const t=(it.by-300)/(560-300);   // 0(地平線/遠) → 1(底部/近)
+    const sc=0.5 + t*1.0;            // 整體縮放：遠 0.5 → 近 1.5
+    const h=44*it.s*sc;              // 依遠近決定大小（越下越大）
+    const dw=h*(sw/img.height);
+    ctx.drawImage(img,0,0,sw,img.height, it.x-dw/2, it.by-h, dw, h);
   }
 }
 function drawCastle(side){
