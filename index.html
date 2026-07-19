@@ -48,17 +48,17 @@
   }
   .menu-title{
     position:relative; display:inline-flex; align-items:center; justify-content:center;
-    padding:48px 60px;
+    padding:48px 96px;                                          /* 左右加寬，標題牌更寬 */
     background-color:#82564e;                                   /* 木棕墊底（圖片載入前短暫露出） */
     background-image:url(assets/sprites/title_wood_new.png);
-    background-size:100% 100%;                                  /* 木桌素材鋪滿整個標題牌 */
+    background-size:100% 100%;                                  /* 木桌素材鋪滿整個標題牌（隨牌寬拉寬） */
     background-position:center;
     background-repeat:no-repeat;
-    border:4px solid #3e2a1a; border-radius:10px;
+    border:none; border-radius:10px;
     box-shadow:
       inset 0 1px 0 rgba(255,255,255,.25),
       inset 0 -3px 8px rgba(0,0,0,.35),
-      0 6px 0 #3e2a1a, 0 10px 22px rgba(0,0,0,.55);
+      0 10px 22px rgba(0,0,0,.55);
   }
   .menu-title::before, .menu-title::after{
     content:''; position:absolute; top:50%; width:14px; height:14px; border-radius:50%;
